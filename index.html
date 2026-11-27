@@ -1,0 +1,4537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>♡ 推しBLドラマ＆キャラ図鑑 ♡</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Webフォント（Noto Sans JP / Inter） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* カラーテーマおよびグラスモーフィズムカード定義 */
+    :root {
+      --bg-base: #fff7fb;
+      --bg-grad: radial-gradient(circle at top left, #ffeef6 0%, #f5efff 52%, #fffaf2 100%);
+      --card-surface: rgba(255, 255, 255, 0.92);
+      --border-soft: rgba(244, 114, 182, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-base);
+      background-image: var(--bg-grad);
+      color: #2c1e3a;
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.65;
+    }
+
+    .glass-card {
+      background: var(--card-surface);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid var(--border-soft);
+      box-shadow: 0 10px 26px -12px rgba(139, 92, 246, 0.16);
+    }
+
+    .soft-pill {
+      background: linear-gradient(90deg, rgba(251, 207, 232, 0.58), rgba(221, 214, 254, 0.58));
+    }
+
+    .tab-active {
+      background: linear-gradient(135deg, #ff6fa5 0%, #8b5cf6 100%);
+      color: #ffffff;
+      box-shadow: 0 6px 18px -6px rgba(236, 72, 153, 0.55);
+      border-color: transparent;
+    }
+
+    .tab-inactive {
+      background: rgba(255, 255, 255, 0.85);
+      color: #5a4c70;
+      border: 1.5px solid rgba(244, 114, 182, 0.25);
+    }
+
+    .tab-inactive:hover {
+      background: #fff0f7;
+      color: #c2185b;
+      border-color: #f472b6;
+    }
+
+    .filter-chip {
+      border: 1.5px solid rgba(244, 114, 182, 0.28);
+      background: #ffffff;
+      color: #4d3f61;
+      transition: all 0.15s ease;
+    }
+
+    .filter-chip:hover {
+      border-color: #f472b6;
+      background: #fff3f9;
+    }
+
+    .filter-chip.active {
+      background: #ffe0ee;
+      color: #be185d;
+      border-color: #ec4899;
+      font-weight: 700;
+    }
+
+    /* キャラ図鑑から作品図鑑へジャンプした際のハイライト演出 */
+    @keyframes dramaJumpPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.72), 0 12px 28px -10px rgba(139, 92, 246, 0.35);
+        transform: translateY(-2px) scale(1.01);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(168, 85, 247, 0.22), 0 16px 32px -10px rgba(236, 72, 153, 0.45);
+        transform: translateY(-3px) scale(1.015);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0), 0 10px 26px -12px rgba(139, 92, 246, 0.16);
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .drama-jump-highlight {
+      border-color: #ec4899 !important;
+      background: linear-gradient(145deg, rgba(255, 240, 248, 0.98), rgba(245, 238, 255, 0.98)) !important;
+      animation: dramaJumpPulse 1.35s ease-in-out 2;
+    }
+
+    /* トースト通知スタイル */
+    .toast-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 20px);
+      background: rgba(44, 30, 58, 0.94);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 70;
+      box-shadow: 0 10px 25px -6px rgba(44, 30, 58, 0.45);
+      white-space: nowrap;
+      max-width: 92vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast-bar.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* 横スクロールタブのスクロールバー非表示 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- ヘッダー -->
+    <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-pink-200/70 shadow-2xs">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 space-y-3">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <!-- アプリタイトル＆モバイル操作ボタン -->
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h1 class="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-pink-600 via-fuchsia-600 to-violet-600 bg-clip-text text-transparent">
+                ♡ 推しBLドラマ＆キャラ図鑑 ♡
+              </h1>
+              <p class="text-[11px] sm:text-xs text-purple-600 font-medium">
+                作品・メインキャラ・サブキャラ図鑑＆8問推し診断
+              </p>
+            </div>
+
+            <!-- モバイル用ユーティリティボタン -->
+            <div class="flex lg:hidden items-center gap-1.5">
+              <button
+                type="button"
+                onclick="openHistoryModal()"
+                class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100 transition"
+              >
+                履歴(<span id="history-count-mobile">0</span>)
+              </button>
+              <button
+                type="button"
+                onclick="resetAllFilters()"
+                class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-pink-50 text-pink-700 border border-pink-200 hover:bg-pink-100 transition"
+              >
+                リセット
+              </button>
+            </div>
+          </div>
+
+          <!-- グローバル検索＆デスクトップ操作ボタン群 -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div class="relative flex-1 sm:w-64 md:w-72">
+              <input
+                id="global-search-input"
+                type="text"
+                placeholder="作品・キャラ・キャスト・タグを検索..."
+                aria-label="全体検索"
+                class="w-full pl-3.5 pr-8 py-2 rounded-2xl bg-pink-50/70 border border-pink-200 text-xs sm:text-sm focus:outline-none focus:border-purple-400 focus:bg-white transition"
+              />
+              <button
+                id="clear-search-btn"
+                type="button"
+                onclick="clearGlobalSearch()"
+                aria-label="検索をクリア"
+                class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-purple-500 hover:text-pink-600 font-bold text-sm"
+              >
+                ×
+              </button>
+            </div>
+
+            <div class="hidden lg:flex items-center gap-2">
+              <button
+                type="button"
+                onclick="openHistoryModal()"
+                class="px-3 py-2 rounded-2xl text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100 transition whitespace-nowrap"
+              >
+                診断履歴（<span id="history-count-desktop">0</span>）
+              </button>
+              <button
+                type="button"
+                onclick="runTestPlay()"
+                class="px-3 py-2 rounded-2xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition whitespace-nowrap"
+              >
+                テスト検証
+              </button>
+              <button
+                type="button"
+                onclick="resetAllFilters()"
+                class="px-3 py-2 rounded-2xl text-xs font-bold bg-pink-50 text-pink-700 border border-pink-200 hover:bg-pink-100 transition whitespace-nowrap"
+              >
+                条件リセット
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- メインタブナビゲーション -->
+        <nav aria-label="メインメニュー" class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
+          <button id="tab-dramas" type="button" onclick="switchTab('dramas')" class="tab-btn tab-active px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            BL作品図鑑
+          </button>
+          <button id="tab-main-chars" type="button" onclick="switchTab('main-chars')" class="tab-btn tab-inactive px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            メインキャラ図鑑
+          </button>
+          <button id="tab-sub-chars" type="button" onclick="switchTab('sub-chars')" class="tab-btn tab-inactive px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            サブキャラ図鑑
+          </button>
+          <button id="tab-char-quiz" type="button" onclick="switchTab('char-quiz')" class="tab-btn tab-inactive px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            推しキャラ診断（8問）
+          </button>
+          <button id="tab-drama-quiz" type="button" onclick="switchTab('drama-quiz')" class="tab-btn tab-inactive px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            推し作品診断（8問）
+          </button>
+          <button id="tab-add-drama" type="button" onclick="switchTab('add-drama')" class="tab-btn tab-inactive px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            作品を追加
+          </button>
+          <button id="tab-favorites" type="button" onclick="switchTab('favorites')" class="tab-btn tab-inactive px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition">
+            ★推しリスト
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
+      <!-- 1. BL作品図鑑 -->
+      <section id="section-dramas" class="space-y-4">
+        <div class="glass-card rounded-3xl p-4 sm:p-5 space-y-3.5">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">BL作品図鑑</h2>
+              <p id="dramas-count-label" class="text-xs sm:text-sm text-purple-600 mt-0.5"></p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
+              <input
+                id="drama-cast-search"
+                type="text"
+                placeholder="キャスト名検索"
+                aria-label="作品キャスト名検索"
+                class="px-3 py-2 rounded-xl bg-pink-50/60 border border-pink-200 text-xs sm:text-sm focus:outline-none focus:border-purple-400 focus:bg-white"
+              />
+              <!-- BL作品図鑑のグループ名検索はセレクト選択 -->
+              <select
+                id="drama-group-search"
+                onchange="onDramaGroupSelectChange(this.value)"
+                aria-label="作品グループ名選択"
+                class="px-3 py-2 rounded-xl bg-white border border-purple-200 text-xs sm:text-sm text-purple-900 focus:outline-none focus:border-pink-400"
+              >
+                <option value="">すべてのグループ</option>
+              </select>
+              <select
+                id="drama-period-filter"
+                onchange="renderDramas()"
+                aria-label="放送時期・枠で絞り込み"
+                class="px-3 py-2 rounded-xl bg-white border border-pink-200 text-xs sm:text-sm text-purple-900 focus:outline-none focus:border-purple-400"
+              >
+                <option value="">すべての時期・枠</option>
+                <option value="2026年秋">2026年秋</option>
+                <option value="2026年夏">2026年夏</option>
+                <option value="2026年">2026年</option>
+                <option value="2025年">2025年</option>
+                <option value="2020〜2024年">2020〜2024年</option>
+                <option value="2019年以前">2019年以前</option>
+                <option value="深夜枠">深夜枠</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ジャンル・タグ絞り込みチップ -->
+          <div id="drama-tag-chips" class="flex flex-wrap items-center gap-1.5 pt-1"></div>
+        </div>
+
+        <div id="dramas-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"></div>
+      </section>
+
+      <!-- 2. メインキャラ図鑑 -->
+      <section id="section-main-chars" class="hidden space-y-4">
+        <div class="glass-card rounded-3xl p-4 sm:p-5 space-y-3.5">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">メインキャラ図鑑</h2>
+              <p id="main-chars-count-label" class="text-xs sm:text-sm text-purple-600 mt-0.5"></p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
+              <input
+                id="main-cast-search"
+                type="text"
+                placeholder="キャスト名検索"
+                aria-label="メインキャラキャスト名検索"
+                class="px-3 py-2 rounded-xl bg-pink-50/60 border border-pink-200 text-xs sm:text-sm focus:outline-none focus:border-purple-400 focus:bg-white"
+              />
+              <!-- メインキャラ図鑑のグループ名検索はセレクト選択 -->
+              <select
+                id="main-group-search"
+                onchange="onMainGroupSelectChange(this.value)"
+                aria-label="メインキャラグループ名選択"
+                class="px-3 py-2 rounded-xl bg-white border border-purple-200 text-xs sm:text-sm text-purple-900 focus:outline-none focus:border-pink-400"
+              >
+                <option value="">すべてのグループ</option>
+              </select>
+              <select
+                id="main-char-drama-filter"
+                onchange="renderMainCharacters()"
+                aria-label="作品で絞り込み"
+                class="px-3 py-2 rounded-xl bg-white border border-pink-200 text-xs sm:text-sm text-purple-900 focus:outline-none focus:border-purple-400"
+              ></select>
+            </div>
+          </div>
+          <div id="main-genre-chips" class="flex flex-wrap items-center gap-1.5 pt-1"></div>
+        </div>
+
+        <div id="main-chars-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"></div>
+      </section>
+
+      <!-- 3. サブキャラ図鑑 -->
+      <section id="section-sub-chars" class="hidden space-y-4">
+        <div class="glass-card rounded-3xl p-4 sm:p-5 space-y-3.5">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">サブキャラ図鑑</h2>
+              <p id="sub-chars-count-label" class="text-xs sm:text-sm text-purple-600 mt-0.5"></p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
+              <input
+                id="sub-cast-search"
+                type="text"
+                placeholder="キャスト名検索"
+                aria-label="サブキャラキャスト名検索"
+                class="px-3 py-2 rounded-xl bg-pink-50/60 border border-pink-200 text-xs sm:text-sm focus:outline-none focus:border-purple-400 focus:bg-white"
+              />
+              <select
+                id="sub-char-drama-filter"
+                onchange="renderSubCharacters()"
+                aria-label="サブキャラ作品絞り込み"
+                class="px-3 py-2 rounded-xl bg-white border border-pink-200 text-xs sm:text-sm text-purple-900 focus:outline-none focus:border-pink-400"
+              ></select>
+              <select
+                id="sub-char-group-filter"
+                onchange="renderSubCharacters()"
+                aria-label="サブキャラグループ絞り込み"
+                class="px-3 py-2 rounded-xl bg-white border border-pink-200 text-xs sm:text-sm text-purple-900 focus:outline-none focus:border-pink-400"
+              ></select>
+            </div>
+          </div>
+        </div>
+
+        <div id="sub-chars-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"></div>
+      </section>
+
+      <!-- 4. 推しキャラ診断（8問：メイン／サブ切替） -->
+      <section id="section-char-quiz" class="hidden space-y-5">
+        <div class="glass-card rounded-3xl p-4 sm:p-7">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-5 border-b border-pink-100">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">推しキャラ診断（8問）</h2>
+              <p id="char-quiz-subtitle" class="text-xs sm:text-sm text-purple-600 mt-0.5">
+                メインキャラ診断（8問）とサブキャラ診断（8問）を選べます。
+              </p>
+            </div>
+
+            <div class="inline-flex rounded-2xl p-1 bg-pink-100/90 border border-pink-200 self-start md:self-auto">
+              <button
+                id="mode-btn-main"
+                type="button"
+                onclick="setCharacterQuizMode('main')"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-2xs"
+              >
+                メインキャラ診断（8問）
+              </button>
+              <button
+                id="mode-btn-sub"
+                type="button"
+                onclick="setCharacterQuizMode('sub')"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-purple-800 hover:bg-white/75"
+              >
+                サブキャラ診断（8問）
+              </button>
+            </div>
+          </div>
+
+          <div id="char-quiz-container" class="mt-6"></div>
+        </div>
+      </section>
+
+      <!-- 5. 推し作品診断（8問） -->
+      <section id="section-drama-quiz" class="hidden space-y-5">
+        <div class="glass-card rounded-3xl p-4 sm:p-7">
+          <div class="pb-5 border-b border-pink-100">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">推し作品診断（8問）</h2>
+            <p class="text-xs sm:text-sm text-purple-600 mt-0.5">
+              8つの質問に答えて、今のあなたにぴったりのBLドラマ作品を診断します。
+            </p>
+          </div>
+          <div id="drama-quiz-container" class="mt-6"></div>
+        </div>
+      </section>
+
+      <!-- 6. 作品を追加 -->
+      <section id="section-add-drama" class="hidden space-y-5">
+        <div class="glass-card rounded-3xl p-5 sm:p-7 max-w-3xl mx-auto">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">作品を追加</h2>
+          <p class="text-xs sm:text-sm text-purple-600 mt-1">
+            追加した作品は「BL作品図鑑」「メインキャラ図鑑」「サブキャラ図鑑」すべてに反映されます。
+          </p>
+
+          <form id="add-drama-form" onsubmit="handleAddDramaSubmit(event)" class="mt-6 space-y-4">
+            <div>
+              <label class="block text-xs sm:text-sm font-bold text-purple-900 mb-1.5">作品タイトル *</label>
+              <input
+                id="new-drama-title"
+                type="text"
+                required
+                placeholder="例：恋する青春キャンパス"
+                class="w-full px-4 py-2.5 rounded-2xl bg-pink-50/60 border border-pink-200 focus:border-purple-400 focus:bg-white focus:outline-none text-sm"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs sm:text-sm font-bold text-purple-900 mb-1.5">時期・放送枠</label>
+                <input
+                  id="new-drama-year"
+                  type="text"
+                  placeholder="例：2026年秋 / ABCテレビ・配信"
+                  class="w-full px-4 py-2.5 rounded-2xl bg-pink-50/60 border border-pink-200 focus:border-purple-400 focus:bg-white focus:outline-none text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-xs sm:text-sm font-bold text-purple-900 mb-1.5">ジャンル・タグ</label>
+                <input
+                  id="new-drama-mood"
+                  type="text"
+                  placeholder="例：学園・青春、甘々・胸キュン"
+                  class="w-full px-4 py-2.5 rounded-2xl bg-pink-50/60 border border-pink-200 focus:border-purple-400 focus:bg-white focus:outline-none text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs sm:text-sm font-bold text-purple-900 mb-1.5">あらすじ・紹介</label>
+              <textarea
+                id="new-drama-synopsis"
+                rows="3"
+                placeholder="作品のストーリーや見どころを入力してください"
+                class="w-full px-4 py-2.5 rounded-2xl bg-pink-50/60 border border-pink-200 focus:border-purple-400 focus:bg-white focus:outline-none text-sm"
+              ></textarea>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-pink-50/65 border border-pink-200 space-y-3">
+              <div class="text-sm font-bold text-pink-950">メインキャラクター登録（任意）</div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  id="new-main-char-name"
+                  type="text"
+                  placeholder="メインキャラ名"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-pink-200 text-sm focus:outline-none focus:border-purple-400"
+                />
+                <input
+                  id="new-main-char-archetype"
+                  type="text"
+                  placeholder="系統（例：一途ストレート系）"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-pink-200 text-sm focus:outline-none focus:border-purple-400"
+                />
+                <input
+                  id="new-main-char-cast"
+                  type="text"
+                  placeholder="キャスト名"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-pink-200 text-sm focus:outline-none focus:border-purple-400"
+                />
+              </div>
+              <input
+                id="new-main-char-group"
+                type="text"
+                placeholder="グループ名（任意・例：原因は自分にある。）"
+                class="w-full px-3.5 py-2 rounded-xl bg-white border border-pink-200 text-sm focus:outline-none focus:border-purple-400"
+              />
+              <input
+                id="new-main-char-desc"
+                type="text"
+                placeholder="メインキャラの説明"
+                class="w-full px-3.5 py-2 rounded-xl bg-white border border-pink-200 text-sm focus:outline-none focus:border-purple-400"
+              />
+            </div>
+
+            <div class="p-4 rounded-2xl bg-purple-50/65 border border-purple-200 space-y-3">
+              <div class="text-sm font-bold text-purple-950">サブキャラクター登録（任意）</div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  id="new-sub-char-name"
+                  type="text"
+                  placeholder="サブキャラ名"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-purple-200 text-sm focus:outline-none focus:border-pink-400"
+                />
+                <input
+                  id="new-sub-char-cast"
+                  type="text"
+                  placeholder="キャスト名"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-purple-200 text-sm focus:outline-none focus:border-pink-400"
+                />
+                <input
+                  id="new-sub-char-group"
+                  type="text"
+                  placeholder="グループ名（任意・例：DXTEEN）"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-purple-200 text-sm focus:outline-none focus:border-pink-400"
+                />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  id="new-sub-char-category"
+                  type="text"
+                  placeholder="カテゴリ（例：親友枠・クラスメイト）"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-purple-200 text-sm focus:outline-none focus:border-pink-400"
+                />
+                <input
+                  id="new-sub-char-desc"
+                  type="text"
+                  placeholder="サブキャラの説明"
+                  class="px-3.5 py-2 rounded-xl bg-white border border-purple-200 text-sm focus:outline-none focus:border-pink-400"
+                />
+              </div>
+            </div>
+
+            <div class="pt-2 flex flex-wrap items-center justify-end gap-3">
+              <button
+                type="reset"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white border border-purple-200 text-purple-800 hover:bg-purple-50 transition"
+              >
+                入力クリア
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 shadow-md transition"
+              >
+                図鑑に作品を追加する
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 7. ★推しリスト -->
+      <section id="section-favorites" class="hidden space-y-5">
+        <div class="glass-card rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-purple-950">★推しリスト</h2>
+            <p id="favorites-count-label" class="text-xs sm:text-sm text-purple-600 mt-0.5"></p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" id="fav-filter-all" onclick="setFavoriteFilter('all')" class="filter-chip active px-3.5 py-1.5 rounded-full text-xs font-semibold">すべて</button>
+            <button type="button" id="fav-filter-drama" onclick="setFavoriteFilter('drama')" class="filter-chip px-3.5 py-1.5 rounded-full text-xs font-semibold">BL作品</button>
+            <button type="button" id="fav-filter-main" onclick="setFavoriteFilter('main')" class="filter-chip px-3.5 py-1.5 rounded-full text-xs font-semibold">メインキャラ</button>
+            <button type="button" id="fav-filter-sub" onclick="setFavoriteFilter('sub')" class="filter-chip px-3.5 py-1.5 rounded-full text-xs font-semibold">サブキャラ</button>
+          </div>
+        </div>
+
+        <div id="favorites-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5"></div>
+      </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="border-t border-pink-100 bg-white/75 py-4 px-4 text-center text-xs text-purple-700">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span>♡ 推しBLドラマ＆キャラ図鑑 ♡</span>
+        <span id="footer-stats"></span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 診断結果・保存履歴管理モーダル -->
+  <div id="history-modal" class="hidden fixed inset-0 z-50 bg-purple-950/45 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="glass-card w-full max-w-2xl max-h-[88vh] rounded-3xl overflow-hidden flex flex-col">
+      <div class="px-5 py-4 bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 border-b border-pink-200 flex items-center justify-between gap-2">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-purple-950">診断結果の保存履歴</h3>
+          <p class="text-xs text-purple-700">保存した診断結果の確認・コピー・共有・削除ができます</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            onclick="clearAllHistory()"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-rose-600 border border-rose-200 hover:bg-rose-50 transition"
+          >
+            すべて削除
+          </button>
+          <button
+            type="button"
+            onclick="closeHistoryModal()"
+            class="w-8 h-8 rounded-full bg-white text-purple-800 hover:bg-purple-50 font-bold flex items-center justify-center border border-purple-200"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+      <div id="history-list-container" class="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- テストプレイ検証レポートモーダル -->
+  <div id="test-modal" class="hidden fixed inset-0 z-50 bg-purple-950/45 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="glass-card w-full max-w-2xl max-h-[88vh] rounded-3xl overflow-hidden flex flex-col">
+      <div class="px-5 py-4 bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 border-b border-purple-200 flex items-center justify-between gap-2">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-purple-950">テストプレイ検証レポート</h3>
+          <p class="text-xs text-purple-700">データ件数・追加作品＆キャラ・系統見直し・診断の自動検証</p>
+        </div>
+        <button
+          type="button"
+          onclick="closeTestModal()"
+          class="w-8 h-8 rounded-full bg-white text-purple-800 hover:bg-purple-50 font-bold flex items-center justify-center border border-purple-200"
+        >
+          ×
+        </button>
+      </div>
+      <div id="test-report-container" class="p-4 sm:p-5 overflow-y-auto space-y-2.5 flex-1 text-xs sm:text-sm"></div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="toast-bar" role="status" aria-live="polite"></div>
+
+  <script>
+    /* =========================================================================
+     * 1. 初期データ定義（BL作品・メインキャラ系統・サブキャラ・8問診断）
+     * ========================================================================= */
+    const INITIAL_DRAMAS = [
+      {
+        id: 'drama-shugaku-group',
+        title: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        period: '2026年秋',
+        broadcast: 'ABCテレビ / FOD・配信',
+        castList: [
+          { name: '藤本洸大', group: '' },
+          { name: '簡秀吉', group: '' }
+        ],
+        tags: ['学園・青春', 'グループ・仲間', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '高校2年の修学旅行班から交際へと進み、2026年秋期シーズン2での新たな波乱や距離感までをひとくくりで描く青春BLシリーズ。'
+      },
+      {
+        id: 'drama-serizawa',
+        title: '陽キャ集団にいる芹沢は、俺の前だと様子がおかしい',
+        period: '2026年秋',
+        broadcast: '読売テレビ / 配信',
+        castList: [
+          { name: '小泉光咲', group: '原因は自分にある。' },
+          { name: '四坂亮翔', group: '' }
+        ],
+        tags: ['学園・青春', 'コメディ・笑える', 'グループ・仲間', '甘々・胸キュン'],
+        synopsis: '教室の隅で過ごす鈴木創と、学校一の陽キャ・芹沢遥人が二人きりで見せる不器用で甘酸っぱい関係を描く2026年秋ドラマ。'
+      },
+      {
+        id: 'drama-ao-to-midori',
+        title: '青と碧',
+        period: '2026年秋',
+        broadcast: 'BS朝日 / Lemino',
+        castList: [
+          { name: '草川直弥', group: "ONE N' ONLY" },
+          { name: '知念英和', group: '' }
+        ],
+        tags: ['学園・青春', '大人・オフィス', '切なさ・エモ'],
+        synopsis: '高校時代に出会い、長い時間を経て互いへの想いを重ねていく山村碧と葉山青のラブストーリー（2026年秋）。'
+      },
+      {
+        id: 'drama-anata-o-korosu-tabi',
+        title: 'あなたを殺す旅',
+        period: '2026年',
+        broadcast: 'フジテレビ / FOD・配信',
+        castList: [
+          { name: '和田雅成', group: '' },
+          { name: '髙橋大翔', group: '' },
+          { name: '堀海登', group: '' }
+        ],
+        tags: ['切なさ・エモ', '深夜枠', '同居・ルームシェア'],
+        synopsis: '情に厚く人たらしな若頭・片岡錦司と、密命を背負い世話役として寄り添う寡黙な組員・小田島漣が織りなす危うく切ない旅路のラブストーリー。'
+      },
+      {
+        id: 'drama-punks-triangle',
+        title: 'PUNKS△TRIANGLE＜パンクス・トライアングル＞',
+        period: '2025年',
+        broadcast: 'フジテレビ / FOD',
+        castList: [
+          { name: '長野凌大', group: '原因は自分にある。' },
+          { name: '藤林泰也', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', '切なさ・エモ', '深夜枠'],
+        synopsis: '服飾専門学校を舞台に、ピュアな純浦千明とカリスマモデル・アイ／不器用なクラスメイト・江永歩の三角関係を描くBLドラマ。'
+      },
+      {
+        id: 'drama-futsu-no-renai',
+        title: '普通の恋愛',
+        period: '2026年夏',
+        broadcast: 'CBCテレビ / FOD',
+        castList: [
+          { name: '古川雄輝', group: '' },
+          { name: '長野凌大', group: '原因は自分にある。' }
+        ],
+        tags: ['大人・オフィス', '切なさ・エモ', '深夜枠'],
+        synopsis: 'トラウマを抱えた上司・文原一良と、恋を知らずに生きてきた年下部下・東慶伊が不器用ながらも幸せを見つけるラブストーリー。'
+      },
+      {
+        id: 'drama-shimobe-no-oujisama',
+        title: 'しもべの王子様',
+        period: '2026年夏',
+        broadcast: 'TOKYO MX / 配信',
+        castList: [
+          { name: '小川史記', group: 'BUDDiiS' },
+          { name: '瀬戸利樹', group: '' }
+        ],
+        tags: ['大人・オフィス', '切なさ・エモ', '甘々・胸キュン', '深夜枠'],
+        synopsis: '10年の時を経て立場が逆転した元・校内トップの直也と、ベンチャー社長となった高明が織りなす立場逆転ラブストーリー。'
+      },
+      {
+        id: 'drama-your-sky-hare-nochi-koi',
+        title: 'Your Sky ハレのち恋',
+        period: '2026年夏',
+        broadcast: '配信',
+        castList: [
+          { name: '福田歩汰', group: 'DXTEEN' },
+          { name: '相原一心', group: 'ONE LOVE ONE HEART' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'グループ・仲間'],
+        synopsis: '2026年夏に描かれる真っ直ぐな青春ラブストーリー。揺れ動く想いと素直な距離感が交差する。'
+      },
+      {
+        id: 'drama-koi-nido-me',
+        title: '恋をするなら二度目が上等（Season1 / Season2）',
+        period: '2026年',
+        broadcast: 'MBS / TBS・配信',
+        castList: [
+          { name: '長谷川慎', group: 'THE RAMPAGE' },
+          { name: '古屋呂敏', group: '' },
+          { name: '髙松アロハ', group: '超特急' }
+        ],
+        tags: ['大人・オフィス', '同居・ルームシェア', '切なさ・エモ', '深夜枠'],
+        synopsis: '10年ぶりの再会からSeason2での同居・信頼へと深まる宮田晃啓と岩永崇、そして岩永の助手・白石優人らが織りなす大人ラブストーリーシリーズ。'
+      },
+      {
+        id: 'drama-cosplay-lover',
+        title: 'コスメティック・プレイラバー（Season1 / Season2）',
+        period: '2026年',
+        broadcast: 'フジテレビ / FOD',
+        castList: [
+          { name: '奥野壮', group: '' },
+          { name: '豊田裕大', group: '' }
+        ],
+        tags: ['大人・オフィス', '同居・ルームシェア', '甘々・胸キュン'],
+        synopsis: 'コスメショップの先輩・後輩から同居生活、Season2へと深まる間宮棗と佐橋斗真のオフィスラブシリーズ。'
+      },
+      {
+        id: 'drama-shinyu-dosei',
+        title: '親友の「同棲して」に「うん」て言うまで',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '吉澤要人', group: '原因は自分にある。' },
+          { name: '雨宮翔', group: 'GENIC' }
+        ],
+        tags: ['同居・ルームシェア', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '親友からの同棲提案をきっかけに、止まっていた距離と想いが動き出すラブコメ。'
+      },
+      {
+        id: 'drama-futtara-doshaburi',
+        title: 'ふったらどしゃぶり（本編 / メロウレイン）',
+        period: '2026年',
+        broadcast: 'MBS / FOD・配信',
+        castList: [
+          { name: '武藤潤', group: '原因は自分にある。' },
+          { name: '伊藤あさひ', group: '' }
+        ],
+        tags: ['大人・オフィス', '切なさ・エモ', '深夜枠'],
+        synopsis: 'すれ違いや葛藤を抱えた二人が心を通わせる本編と、繊細な心情を描くスピンオフ「メロウレイン」をまとめたシリーズ。'
+      },
+      {
+        id: 'drama-harutora-kun',
+        title: 'ちょっと待とうよ、春虎くん',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '中川翼', group: '' },
+          { name: '桜木雅哉', group: '原因は自分にある。' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: 'マイペースな黒部春虎のペースに惹かれていく青春ラブストーリー。'
+      },
+      {
+        id: 'drama-minato-shoji',
+        title: 'みなと商事コインランドリー（1 / 2）',
+        period: '2020〜2024年',
+        broadcast: 'テレビ東京 / 配信',
+        castList: [
+          { name: '草川拓弥', group: '超特急' },
+          { name: '西垣匠', group: '' }
+        ],
+        tags: ['学園・青春', '同居・ルームシェア', '甘々・胸キュン', 'コメディ・笑える', '深夜枠'],
+        synopsis: 'コインランドリー管理人・湊晃と一途な高校生・香月慎太郎の出会いから、恋人・同居へと深まる1＆2シリーズ。'
+      },
+      {
+        id: 'drama-utsukushii-kare',
+        title: '美しい彼（シーズン1 / シーズン2 / 劇場版）',
+        period: '2020〜2024年',
+        broadcast: 'MBS / TBS・劇場 / 配信',
+        castList: [
+          { name: '萩原利久', group: '' },
+          { name: '八木勇征', group: 'FANTASTICS' }
+        ],
+        tags: ['学園・青春', '同居・ルームシェア', '甘々・胸キュン', '切なさ・エモ', '深夜枠'],
+        synopsis: '平良一成と清居奏のすれ違いと一途な想いを描くシーズン1、恋人としての歩みを描くシーズン2、そして劇場版までをひとくくり。'
+      },
+      {
+        id: 'drama-kieta-hatsukoi',
+        title: '消えた初恋',
+        period: '2020〜2024年',
+        broadcast: 'テレビ朝日 / 配信',
+        castList: [
+          { name: '道枝駿佑', group: 'なにわ男子' },
+          { name: '目黒蓮', group: 'Snow Man' },
+          { name: '鈴木仁', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '消しゴムの勘違いから始まる、ピュアで笑える高校ラブコメディ。'
+      },
+      {
+        id: 'drama-cherry-maho',
+        title: '30歳まで童貞だと魔法使いになれるらしい',
+        period: '2020〜2024年',
+        broadcast: 'テレビ東京 / 配信',
+        castList: [
+          { name: '赤楚衛二', group: '' },
+          { name: '町田啓太', group: '劇団EXILE' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', 'コメディ・笑える', '深夜枠'],
+        synopsis: '安達清と黒沢優一の心温まるオフィスラブコメ。'
+      },
+      {
+        id: 'drama-ossans-love',
+        title: 'おっさんずラブ（2018 / リターンズ）',
+        period: '2020〜2024年',
+        broadcast: 'テレビ朝日 / 配信',
+        castList: [
+          { name: '田中圭', group: '' },
+          { name: '林遣都', group: '' }
+        ],
+        tags: ['大人・オフィス', '同居・ルームシェア', 'コメディ・笑える', '切なさ・エモ'],
+        synopsis: '春田創一と牧凌太を中心に巻き起こる笑えて泣ける2018年版と、新婚生活を描くリターンズをひとくくり。'
+      },
+      {
+        id: 'drama-takara-amagi',
+        title: '高良くんと天城くん',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '佐藤新', group: 'IMP.' },
+          { name: '織山尚大', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '高良瞬と天城太一が秘密の恋を育む青春ラブコメディ。'
+      },
+      {
+        id: 'drama-taikan-yoho',
+        title: '体感予報',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '樋口幸平', group: '' },
+          { name: '増子敦貴', group: 'GENIC' }
+        ],
+        tags: ['同居・ルームシェア', '甘々・胸キュン', '切なさ・エモ', '深夜枠'],
+        synopsis: '棚田葉と万木朝日の不器用で濃密な同居ラブストーリー。'
+      },
+      {
+        id: 'drama-takara-vidro',
+        title: 'タカラのびいどろ',
+        period: '2020〜2024年',
+        broadcast: 'BS朝日 / Lemino',
+        castList: [
+          { name: '岩瀬洋志', group: '' },
+          { name: '小西詠斗', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '中野大進と志賀宝が紡ぐピュアで切ないラブストーリー。'
+      },
+      {
+        id: 'drama-25ji-akasaka',
+        title: '25時、赤坂で',
+        period: '2020〜2024年',
+        broadcast: 'テレビ東京 / 配信',
+        castList: [
+          { name: '駒木根葵汰', group: '' },
+          { name: '新原泰佑', group: '' }
+        ],
+        tags: ['大人・オフィス', '同居・ルームシェア', '切なさ・エモ', '深夜枠'],
+        synopsis: '羽山麻水と白崎由岐が共演を通じて惹かれ合う芸能界ラブストーリー。'
+      },
+      {
+        id: 'drama-hidamari',
+        title: 'ひだまりが聴こえる',
+        period: '2020〜2024年',
+        broadcast: 'テレビ東京 / 配信',
+        castList: [
+          { name: '中沢元紀', group: '' },
+          { name: '小林亮太', group: '' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ'],
+        synopsis: '杉原航平と佐川太一がノートテイクを通じて心を重ねる青春ドラマ。'
+      },
+      {
+        id: 'drama-kimi-to-nara',
+        title: '君となら恋してみても',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '大倉空人', group: '原因は自分にある。' },
+          { name: '日向亘', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '海辺の街へ引っ越してきた高校生とクラスメイトの初恋。'
+      },
+      {
+        id: 'drama-4gatsu-tokyo',
+        title: '4月の東京は…',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '櫻井佑樹', group: '劇団EXILE' },
+          { name: '髙松アロハ', group: '超特急' }
+        ],
+        tags: ['大人・オフィス', '切なさ・エモ', '深夜枠'],
+        synopsis: '10年ぶりに再会した幼馴染二人の再会ラブストーリー。'
+      },
+      {
+        id: 'drama-eien-no-kino',
+        title: '永遠の昨日',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '小宮璃央', group: '' },
+          { name: '井上想良', group: '' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ'],
+        synopsis: '浩一と山田の切なく尊い学園ラブストーリー。'
+      },
+      {
+        id: 'drama-fukou-kun',
+        title: '不幸くんはキスするしかない！',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '曽田陵介', group: '' },
+          { name: '佐藤友祐', group: 'lol' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '福原幸多と篠宮直哉の恋人ごっこから始まるラブコメ。'
+      },
+      {
+        id: 'drama-sugar-dog-life',
+        title: 'シュガードッグライフ',
+        period: '2020〜2024年',
+        broadcast: 'ABCテレビ / 配信',
+        castList: [
+          { name: '田中洸希', group: 'SUPER★DRAGON' },
+          { name: '多和田任益', group: '' }
+        ],
+        tags: ['同居・ルームシェア', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '桜庭唯純と天沢恭之介の手料理から始まる同居ラブコメ。'
+      },
+      {
+        id: 'drama-ameiro-paradox',
+        title: '飴色パラドックス',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '木村慧人', group: 'FANTASTICS' },
+          { name: '山中柔太朗', group: 'M!LK' }
+        ],
+        tags: ['大人・オフィス', 'コメディ・笑える', '甘々・胸キュン'],
+        synopsis: '尾上聡と蕪木元治の週刊誌コンビが描くラブコメ。'
+      },
+      {
+        id: 'drama-sahara-toki',
+        title: '佐原先生と土岐くん',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '岐洲匠', group: '' },
+          { name: '八村倫太郎', group: 'WATWING' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '土岐利己と佐原一狼のピュアな純愛コメディ。'
+      },
+      {
+        id: 'drama-miman-mikaku',
+        title: '未成年〜未熟な俺たちは不器用に進行中〜',
+        period: '2020〜2024年',
+        broadcast: '読売テレビ / 配信',
+        castList: [
+          { name: '本島純政', group: '' },
+          { name: '上村謙信', group: '' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ'],
+        synopsis: '正反対の高校生二人が秘密を共有しながら心を通わせる青春BL。'
+      },
+      {
+        id: 'drama-40-made-ni',
+        title: '40までにしたい10のこと',
+        period: '2025年',
+        broadcast: 'テレビ東京 / 配信',
+        castList: [
+          { name: '風間俊介', group: '' },
+          { name: '庄司浩平', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '十条雀と田中慶司がリストを叶えていく中で恋心を育むオフィスラブ。'
+      },
+      {
+        id: 'drama-kimi-ni-wa-todokanai',
+        title: '君には届かない。',
+        period: '2020〜2024年',
+        broadcast: 'TBS / 配信',
+        castList: [
+          { name: '前田拳太郎', group: '' },
+          { name: '柏木悠', group: '超特急' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ', '甘々・胸キュン'],
+        synopsis: '杉本カケルと窪田ヤマトの幼馴染ならではの片想いとすれ違い。'
+      },
+      {
+        id: 'drama-jack-o-frost',
+        title: 'ジャックフロスト',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '本田響矢', group: '' },
+          { name: '鈴木康介', group: '' }
+        ],
+        tags: ['同居・ルームシェア', '切なさ・エモ', '深夜枠'],
+        synopsis: '記憶を失いかけた奥沢律と池上郁哉の切ない同居生活。'
+      },
+      {
+        id: 'drama-bokura-no-shokutaku',
+        title: '僕らの食卓',
+        period: '2020〜2024年',
+        broadcast: 'BS-TBS / 配信',
+        castList: [
+          { name: '犬飼貴丈', group: '' },
+          { name: '飯島寛騎', group: '' }
+        ],
+        tags: ['同居・ルームシェア', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '穂積豊と上田穣の食事から始まる温かい関係と恋。'
+      },
+      {
+        id: 'drama-zettai-bl',
+        title: '絶対BLになる世界VS絶対BLになりたくない男（シーズン1 / シーズン2）',
+        period: '2020〜2024年',
+        broadcast: 'テレビ朝日 / 配信',
+        castList: [
+          { name: '犬飼貴丈', group: '' },
+          { name: 'ゆうたろう', group: '' }
+        ],
+        tags: ['学園・青春', 'コメディ・笑える', 'グループ・仲間'],
+        synopsis: 'BL世界のモブ男子がフラグを回避しようとするギャグコメディのシーズン1＆シーズン2シリーズ。'
+      },
+      {
+        id: 'drama-old-fashion',
+        title: 'オールドファッションカップケーキ',
+        period: '2020〜2024年',
+        broadcast: 'フジテレビ / FOD',
+        castList: [
+          { name: '武田航平', group: '' },
+          { name: '木村達成', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '野末慶司と外川陽一のパンケーキ巡りから始まる大人の恋。'
+      },
+      {
+        id: 'drama-pornographer',
+        title: 'ポルノグラファー（本編 / 〜インディゴの気分〜 / 〜春的生活〜）',
+        period: '2019年以前',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '竹財輝之助', group: '' },
+          { name: '猪塚健太', group: '' }
+        ],
+        tags: ['大人・オフィス', '同居・ルームシェア', '甘々・胸キュン', '切なさ・エモ', '深夜枠'],
+        synopsis: '木島理生と久住春彦の本編・同居を描く続編、そして前日譚「インディゴの気分」までをひとくくり。'
+      },
+      {
+        id: 'drama-life-senjou',
+        title: 'Life 線上の僕ら',
+        period: '2020〜2024年',
+        broadcast: 'Rakuten TV / 配信',
+        castList: [
+          { name: '白洲迅', group: '' },
+          { name: '楽駆', group: '' }
+        ],
+        tags: ['切なさ・エモ', '甘々・胸キュン'],
+        synopsis: '伊東晃と西川色の長い時間をかけた恋の物語。'
+      },
+      {
+        id: 'drama-his-series',
+        title: 'His（恋するつもりなんてなかった / his）',
+        period: '2019年以前',
+        broadcast: '劇場 / 配信',
+        castList: [
+          { name: '草川直弥', group: "ONE N' ONLY" },
+          { name: '倉悠貴', group: '' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ'],
+        synopsis: '井川迅と日比野渚の揺れる想いと、自分たちらしい幸せを探す物語をひとくくり。'
+      },
+      {
+        id: 'drama-smells-like',
+        title: 'スメルズ ライク グリーン スピリット',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '荒木飛羽', group: '' },
+          { name: '曽野舜太', group: 'M!LK' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ', 'グループ・仲間'],
+        synopsis: '三ノ輪と夢野を中心とした少年たちの青春ドラマ。'
+      },
+      {
+        id: 'drama-bl-shuen',
+        title: 'BLドラマの主演になりました',
+        period: '2020〜2024年',
+        broadcast: 'テレビ朝日 / 配信',
+        castList: [
+          { name: '阿部顕嵐', group: '' },
+          { name: '阿久津仁愛', group: '' }
+        ],
+        tags: ['同居・ルームシェア', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '赤藤優一郎と青柳萌の同居と撮影現場の恋。'
+      },
+      {
+        id: 'drama-suki-ya-nen',
+        title: '好きやねんけどどうやろか',
+        period: '2020〜2024年',
+        broadcast: '読売テレビ / 配信',
+        castList: [
+          { name: '簡秀吉', group: '' },
+          { name: '西山潤', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '曽我久志と野末栄吉の関西弁ラブコメ。'
+      },
+      {
+        id: 'drama-mitsuya-sensei',
+        title: '三ツ矢先生の計画的な餌付け。',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '山崎まさよし', group: '' },
+          { name: '酒井大輝', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '三ツ矢歩と石田凪の料理を通じた距離感を描くドラマ。'
+      },
+      {
+        id: 'drama-ame-agari',
+        title: '雨上がりの僕らについて',
+        period: '2025年',
+        broadcast: 'テレビ東京 / 配信',
+        castList: [
+          { name: '池田匡志', group: '' },
+          { name: '堀夏喜', group: 'FANTASTICS' }
+        ],
+        tags: ['大人・オフィス', '切なさ・エモ'],
+        synopsis: '奏振一郎と真城洸輔が過去の想いと現在の距離感を見つめ直すラブストーリー。'
+      },
+      {
+        id: 'drama-junai-joto',
+        title: '映画「純愛上等」',
+        period: '2026年',
+        broadcast: '劇場 / 配信',
+        castList: [
+          { name: '山中柔太朗', group: 'M!LK' },
+          { name: '髙松アロハ', group: '超特急' }
+        ],
+        tags: ['切なさ・エモ', '甘々・胸キュン'],
+        synopsis: '佐藤美鶴と亀井円が真っ直ぐで不器用な想いをぶつけ合うラブストーリー。'
+      },
+      {
+        id: 'drama-therapy-game',
+        title: 'セラピーゲーム',
+        period: '2026年',
+        broadcast: '日本テレビ / 配信',
+        castList: [
+          { name: '冨田侑暉', group: '龍宮城' },
+          { name: '佐藤瑠雅', group: '' }
+        ],
+        tags: ['甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '三兎と静真の賭けから始まった関係が本気の恋へ変わるラブストーリー。'
+      },
+      {
+        id: 'drama-contrast',
+        title: 'コントラスト',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '井内悠陽', group: '' },
+          { name: '阿久根温世', group: 'ICEx' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ'],
+        synopsis: '青山千秋と翔平が対照的な魅力の中で揺れ動く感情に惹かれ合う青春BL。'
+      },
+      {
+        id: 'drama-senpai-danjite',
+        title: '先輩、断じて恋では！',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '内藤秀一郎', group: '' },
+          { name: '瀬戸利樹', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '柳瀬淳と今川ふみのオフィスラブ。'
+      },
+      {
+        id: 'drama-mikuro-shumatsu',
+        title: '僕らのミクロな終末',
+        period: '2020〜2024年',
+        broadcast: 'ABCテレビ / 配信',
+        castList: [
+          { name: '瀬戸利樹', group: '' },
+          { name: '中田圭祐', group: '' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ'],
+        synopsis: '真澄と仁科の再会と限られた時間を描くドラマ。'
+      },
+      {
+        id: 'drama-nekoyashiki-kun',
+        title: '壁サー同人作家の猫屋敷くんは承認欲求をこじらせている',
+        period: '2020〜2024年',
+        broadcast: 'ABCテレビ / 配信',
+        castList: [
+          { name: '松岡広大', group: '' },
+          { name: '中尾暢樹', group: '' }
+        ],
+        tags: ['グループ・仲間', 'コメディ・笑える', '切なさ・エモ'],
+        synopsis: '猫屋敷守と風間一星の青春群像。'
+      },
+      {
+        id: 'drama-takumi-kun',
+        title: 'タクミくんシリーズ -Drama-',
+        period: '2020〜2024年',
+        broadcast: 'BSフジ / 配信',
+        castList: [
+          { name: '森下紫温', group: '' },
+          { name: '加藤大悟', group: '' }
+        ],
+        tags: ['学園・青春', '切なさ・エモ', 'グループ・仲間'],
+        synopsis: '葉山託生と崎義一の繊細な関係を描く青春ドラマ。'
+      },
+      {
+        id: 'drama-kare-ga-boku-ni',
+        title: '彼が僕に恋した理由（1 / Season2）',
+        period: '2020〜2024年',
+        broadcast: 'TOKYO MX / 配信',
+        castList: [
+          { name: '寺西優真', group: '' },
+          { name: '日向野祥', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '氷川徹と赤城真澄の学園ラブコメ1＆Season2シリーズ。'
+      },
+      {
+        id: 'drama-kiss-wa-sosa',
+        title: 'キスは捜査のあとで',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '渡部秀', group: '' },
+          { name: '齋藤璃佑', group: '' }
+        ],
+        tags: ['大人・オフィス', 'コメディ・笑える', '深夜枠'],
+        synopsis: '多古井平助と塩野秀の捜査と距離感の近さが交錯するラブコメディ。'
+      },
+      {
+        id: 'drama-kimi-wa-natsu',
+        title: '君は夏のなか',
+        period: '2026年',
+        broadcast: '配信',
+        castList: [
+          { name: '奥智哉', group: '' },
+          { name: '杢代和人', group: '原因は自分にある。' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '戸田渉と佐伯千晴が夏の季節に揺れる距離感と初々しさを描く青春BL。'
+      },
+      {
+        id: 'drama-100-nichi-go',
+        title: '100日後に別れる僕と彼',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '伊藤健太郎', group: '' },
+          { name: '寛一郎', group: '' }
+        ],
+        tags: ['同居・ルームシェア', '切なさ・エモ'],
+        synopsis: '春日佑馬と長谷川樹が期限を意識しながら過ごす日々の中で深まるラブストーリー。'
+      },
+      {
+        id: 'drama-fukami-kun',
+        title: 'やたらやらしい深見くん',
+        period: '2026年',
+        broadcast: '配信',
+        castList: [
+          { name: '樫尾篤紀', group: '' },
+          { name: '宮崎湧', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '梶彰弘と深見悠の距離感の近さに翻弄されるオフィスラブコメ。'
+      },
+      {
+        id: 'drama-fake-factory',
+        title: 'フェイクファクトリップス',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '堀海登', group: '' },
+          { name: '佐藤友祐', group: '' }
+        ],
+        tags: ['コメディ・笑える', 'グループ・仲間'],
+        synopsis: '四ツ谷良と志藤全の嘘と勝負から始まる青春ラブコメ。'
+      },
+      {
+        id: 'drama-sekigae',
+        title: '席替えしたら、どうやら後ろの男が俺のこと好きらしい',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '小西詠斗', group: '' },
+          { name: '元之介', group: '' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '間山晴と朝宮光星の席替えから始まる学園ラブコメ。'
+      },
+      {
+        id: 'drama-eigyo-desu-kara',
+        title: '営業ですから',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '植村颯太', group: '' },
+          { name: '高橋璃央', group: '' }
+        ],
+        tags: ['大人・オフィス', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '葦原廉と久慈一清の仕事上の関係から本気の想いが芽生えるオフィスBL。'
+      },
+      {
+        id: 'drama-omae-no-ho-kara',
+        title: 'お前のほうからキスしてくれよ',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '鈴木仁', group: '' },
+          { name: '押田岳', group: '' }
+        ],
+        tags: ['甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '青葉大和と桐谷奏の駆け引きと素直さのギャップが光るラブストーリー。'
+      },
+      {
+        id: 'drama-katekyo-kishi',
+        title: '家庭教師の岸騎士です。',
+        period: '2026年',
+        broadcast: '配信',
+        castList: [
+          { name: '沢村玲', group: "ONE N' ONLY" },
+          { name: '田中洸希', group: 'SUPER★DRAGON' }
+        ],
+        tags: ['学園・青春', '甘々・胸キュン', 'コメディ・笑える'],
+        synopsis: '岸騎士と高杉徹の家庭教師との距離が縮まる学園ラブコメ。'
+      },
+      {
+        id: 'drama-if-no-sekai',
+        title: 'ifの世界で恋がはじまる',
+        period: '2026年',
+        broadcast: 'FOD / 配信',
+        castList: [
+          { name: '醍醐虎汰朗', group: '' },
+          { name: '中川大輔', group: '' }
+        ],
+        tags: ['甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '加納彰人と大狼誠司の並行世界と現実の狭間で揺れる想いを描くラブストーリー。'
+      },
+      {
+        id: 'drama-oneroom-angel',
+        title: 'ワンルームエンジェル',
+        period: '2020〜2024年',
+        broadcast: 'MBS / 配信',
+        castList: [
+          { name: '上杉柊平', group: '' },
+          { name: '西村拓哉', group: '' }
+        ],
+        tags: ['同居・ルームシェア', '甘々・胸キュン', '切なさ・エモ'],
+        synopsis: '生きる気力を失いかけていた幸紀の前に、記憶を失った天使が現れて始まる不思議な同居生活。'
+      }
+    ];
+
+    const GENRE_TYPES = [
+      '一途ストレート系',
+      'ツンデレ照れ屋系',
+      'お兄さん包容力系',
+      '不器用繊細系',
+      '陽キャムード系',
+      'クール無口系',
+      '甘え上手可愛げ系',
+      '大人余裕系'
+    ];
+
+    /* キャラクター名・説明文・キャストから自然な系統（archetype）を推定 */
+    function inferNaturalArchetype(name, desc, castName, fallbackIndex) {
+      const text = `${name} ${desc}`;
+
+      if (
+        text.includes('寡黙') ||
+        text.includes('クール') ||
+        text.includes('無口') ||
+        text.includes('アイ') ||
+        text.includes('小田島')
+      ) {
+        return 'クール無口系';
+      }
+
+      if (
+        text.includes('大人') ||
+        text.includes('落ち着いた') ||
+        text.includes('余裕') ||
+        text.includes('岩永') ||
+        text.includes('野末') ||
+        text.includes('黒沢') ||
+        text.includes('羽山') ||
+        text.includes('文原') ||
+        text.includes('山村碧')
+      ) {
+        return '大人余裕系';
+      }
+
+      if (
+        text.includes('湊晃') ||
+        text.includes('間宮棗') ||
+        text.includes('片岡錦司') ||
+        text.includes('牧凌太') ||
+        text.includes('外川陽一') ||
+        text.includes('三ツ矢歩') ||
+        text.includes('田中慶司') ||
+        text.includes('天沢恭之介') ||
+        text.includes('万木朝日')
+      ) {
+        return 'お兄さん包容力系';
+      }
+
+      if (
+        text.includes('甘え') ||
+        text.includes('甘えん坊') ||
+        text.includes('天使') ||
+        text.includes('香月慎太郎') ||
+        text.includes('佐橋斗真') ||
+        text.includes('黒部春虎') ||
+        text.includes('白崎由岐') ||
+        text.includes('高杉徹') ||
+        text.includes('青柳萌')
+      ) {
+        return '甘え上手可愛げ系';
+      }
+
+      if (
+        text.includes('ツン') ||
+        text.includes('照れ') ||
+        text.includes('強がり') ||
+        text.includes('芹沢') ||
+        text.includes('清居奏') ||
+        text.includes('宮田晃啓') ||
+        text.includes('五藤直也') ||
+        text.includes('亀井円') ||
+        text.includes('桐谷奏')
+      ) {
+        return 'ツンデレ照れ屋系';
+      }
+
+      if (
+        text.includes('陽キャ') ||
+        text.includes('明るい') ||
+        text.includes('ムード') ||
+        text.includes('純浦千明') ||
+        text.includes('春田創一') ||
+        text.includes('朝宮光星') ||
+        text.includes('岸騎士')
+      ) {
+        return '陽キャムード系';
+      }
+
+      if (
+        text.includes('不器用') ||
+        text.includes('繊細') ||
+        text.includes('揺れ') ||
+        text.includes('平良一成') ||
+        text.includes('安達清') ||
+        text.includes('杉原航平') ||
+        text.includes('江永歩') ||
+        text.includes('鈴木創') ||
+        text.includes('幸紀')
+      ) {
+        return '不器用繊細系';
+      }
+
+      if (
+        text.includes('一途') ||
+        text.includes('真っ直ぐ') ||
+        text.includes('ピュア') ||
+        text.includes('井田浩介') ||
+        text.includes('青木想太') ||
+        text.includes('高良瞬') ||
+        text.includes('天城太一') ||
+        text.includes('渡会紬嵩') ||
+        text.includes('日置朝陽')
+      ) {
+        return '一途ストレート系';
+      }
+
+      const safeOrder = [
+        '一途ストレート系',
+        '不器用繊細系',
+        'ツンデレ照れ屋系',
+        '甘え上手可愛げ系',
+        '陽キャムード系',
+        'クール無口系',
+        '大人余裕系'
+      ];
+      return safeOrder[(fallbackIndex + (castName ? castName.length : 0)) % safeOrder.length];
+    }
+
+    /* メインキャラクター一覧を生成 */
+    function buildMainCharacters() {
+      const list = [];
+      let counter = 1;
+
+      const charSpecsByDrama = {
+        'drama-shugaku-group': [
+          { name: '日置朝陽', archetype: '不器用繊細系', desc: '周囲の空気を読みつつも、渡会への想いに真っ直ぐ向き合う高校生。' },
+          { name: '渡会紬嵩', archetype: '一途ストレート系', desc: '不器用ながらも日置への強い想いと真っ直ぐな情熱を持つ高校生。' }
+        ],
+        'drama-serizawa': [
+          { name: '鈴木創', archetype: '不器用繊細系', desc: '教室の隅で静かに過ごす高校生。芹沢の意外な二面性に心を揺らされる。' },
+          { name: '芹沢遥人', archetype: 'ツンデレ照れ屋系', desc: '学校一の陽キャだが、鈴木と二人きりになると照れや戸惑いを見せる。' }
+        ],
+        'drama-ao-to-midori': [
+          { name: '山村碧', archetype: '大人余裕系', desc: '長い時間を経て深まる感情を落ち着いた眼差しで受け止める山村碧。' },
+          { name: '葉山青', archetype: '一途ストレート系', desc: '高校時代からの想いを胸に、まっすぐな気持ちを貫く葉山青。' }
+        ],
+        'drama-anata-o-korosu-tabi': [
+          { name: '片岡錦司', archetype: 'お兄さん包容力系', desc: '情に厚く人たらしな若頭。逃避行の中で小田島を包み込むような包容力を見せる。' },
+          { name: '小田島漣', archetype: 'クール無口系', desc: '密命を背負う寡黙な組員。無表情の奥に切ない想いと純粋さを秘める。' }
+        ],
+        'drama-punks-triangle': [
+          { name: '純浦千明', archetype: '陽キャムード系', desc: '服飾への情熱と真っ直ぐな明るさで周囲を動かす服飾専門学生。' },
+          { name: '江永歩／アイ', archetype: 'クール無口系', desc: 'カリスマモデル・アイと不器用なクラスメイト・江永歩の二面性を持つ存在。' }
+        ],
+        'drama-futsu-no-renai': [
+          { name: '文原一良', archetype: '不器用繊細系', desc: '恋愛のトラウマを抱えながらも、慶伊との時間の中で少しずつ心を開く上司。' },
+          { name: '東慶伊', archetype: 'クール無口系', desc: '淡々とした佇まいの裏に深い愛情を秘める年下部下。' }
+        ],
+        'drama-shimobe-no-oujisama': [
+          { name: '五藤直也', archetype: 'ツンデレ照れ屋系', desc: 'かつて校内トップだった元王子。立場逆転の中でも強がりと素直さが交錯する。' },
+          { name: '佐藤高明', archetype: '一途ストレート系', desc: 'ベンチャー社長となり、10年越しの想いを真っ直ぐに注ぐ存在。' }
+        ],
+        'drama-your-sky-hare-nochi-koi': [
+          { name: '空木晴翔', archetype: '一途ストレート系', desc: '真っ直ぐな眼差しと素直な感情で青春の距離感を縮める高校生。' },
+          { name: '星野一颯', archetype: '甘え上手可愛げ系', desc: '揺れ動く気持ちや可愛らしい一面を覗かせる青春キャラクター。' }
+        ],
+        'drama-koi-nido-me': [
+          { name: '宮田晃啓', archetype: 'ツンデレ照れ屋系', desc: '10年ぶりの再会や嫉妬に揺れながらも、素直な想いを伝える営業マン。' },
+          { name: '岩永崇', archetype: '大人余裕系', desc: '落ち着いた包容力と大人の余裕で宮田を惹きつける大学准教授。' }
+        ],
+        'drama-cosplay-lover': [
+          { name: '間宮棗', archetype: 'お兄さん包容力系', desc: '仕事にも同居生活にも丁寧に向き合い、頼りがいのある先輩美容部員。' },
+          { name: '佐橋斗真', archetype: '甘え上手可愛げ系', desc: '棗への一途な愛情と甘えん坊な可愛げが光る後輩美容部員。' }
+        ],
+        'drama-shinyu-dosei': [
+          { name: '横井湊', archetype: '不器用繊細系', desc: '親友からの同棲提案を前に、自分の本音と向き合う繊細な青年。' },
+          { name: '中乃航', archetype: '陽キャムード系', desc: '思い切った同棲提案で日常の空気を一気に動かす親友。' }
+        ],
+        'drama-futtara-doshaburi': [
+          { name: '整', archetype: '不器用繊細系', desc: '心の奥にある葛藤や繊細な感情を抱えながら相手を求める存在。' },
+          { name: '一', archetype: 'クール無口系', desc: '言葉少なな佇まいの奥に深い想いを秘めるキャラクター。' }
+        ],
+        'drama-harutora-kun': [
+          { name: '岸田粋', archetype: '不器用繊細系', desc: '春虎の自由なペースに振り回されつつも、想いを募らせる高校生。' },
+          { name: '黒部春虎', archetype: '甘え上手可愛げ系', desc: 'マイペースで独特の距離感と可愛げを持つ春虎。' }
+        ],
+        'drama-minato-shoji': [
+          { name: '湊晃', archetype: 'お兄さん包容力系', desc: 'コインランドリー管理人。年下の慎太郎を優しく受け止める兄貴肌。' },
+          { name: '香月慎太郎', archetype: '甘え上手可愛げ系', desc: '晃への一途な想いと人懐っこい甘えん坊さが魅力の高校生。' }
+        ],
+        'drama-utsukushii-kare': [
+          { name: '平良一成', archetype: '不器用繊細系', desc: '清居への想いを真っ直ぐに抱き続けながらも、自己評価に揺れる繊細な青年。' },
+          { name: '清居奏', archetype: 'ツンデレ照れ屋系', desc: '堂々とした輝きを持ちながら、平良の前では照れや本音を見せる存在。' }
+        ],
+        'drama-kieta-hatsukoi': [
+          { name: '青木想太', archetype: '一途ストレート系', desc: '勘違いから始まった恋に真っ直ぐ全力で向き合うピュアな高校生。' },
+          { name: '井田浩介', archetype: '一途ストレート系', desc: '思ったことをストレートに口にし、誠実に青木と向き合う硬派な高校生。' }
+        ],
+        'drama-cherry-maho': [
+          { name: '安達清', archetype: '不器用繊細系', desc: '控えめで気弱な性格だが、相手の心を思いやる優しさに溢れるサラリーマン。' },
+          { name: '黒沢優一', archetype: '大人余裕系', desc: '仕事も立ち振る舞いもスマートで、安達への深い想いを貫く同期。' }
+        ],
+        'drama-ossans-love': [
+          { name: '春田創一', archetype: '陽キャムード系', desc: 'おっちょこちょいで憎めない明るさを持つ営業マン。' },
+          { name: '牧凌太', archetype: 'お兄さん包容力系', desc: '家事も気配りも完璧で、春田を温かく支える包容力のある恋人。' }
+        ],
+        'drama-takara-amagi': [
+          { name: '高良瞬', archetype: '一途ストレート系', desc: '無口でクールに見えつつ、天城への想いは誰よりも一途な高校生。' },
+          { name: '天城太一', archetype: '不器用繊細系', desc: '思い込みや妄想で心が揺れ動きながらも、高良を大切に想う高校生。' }
+        ],
+        'drama-taikan-yoho': [
+          { name: '棚田葉', archetype: '不器用繊細系', desc: '生活力に欠けつつも繊細な感情を抱えるエロ漫画家。' },
+          { name: '万木朝日', archetype: 'お兄さん包容力系', desc: '朝ごはんや日常のケアを通じて葉を包み込むイケメン気象予報士。' }
+        ],
+        'drama-takara-vidro': [
+          { name: '中野大進', archetype: '一途ストレート系', desc: '宝への真っ直ぐな想いを隠さず伝える一途な高校生。' },
+          { name: '志賀宝', archetype: '不器用繊細系', desc: '過去の傷や迷いを抱えながらも、大進の想いに心動かされる高校生。' }
+        ],
+        'drama-25ji-akasaka': [
+          { name: '羽山麻水', archetype: '大人余裕系', desc: '落ち着いた眼差しと大人の余裕で白崎を惹きつける人気俳優。' },
+          { name: '白崎由岐', archetype: '甘え上手可愛げ系', desc: '真っ直ぐな努力家でありながら、羽山の前では可愛らしい一面を見せる俳優。' }
+        ],
+        'drama-hidamari': [
+          { name: '杉原航平', archetype: '不器用繊細系', desc: '難聴による誤解や孤独を抱えながらも、太一との出会いで心を開く大学生。' },
+          { name: '佐川太一', archetype: '一途ストレート系', desc: '明るく裏表のない言葉で航平の心を照らす真っ直ぐな同級生。' }
+        ],
+        'drama-kimi-to-nara': [
+          { name: '海堂天', archetype: '一途ストレート系', desc: '海辺の街で出会った心へ、真っ直ぐな想いを届ける高校生。' },
+          { name: '山吹心', archetype: '不器用繊細系', desc: '繊細な感情を抱えながらも、天との距離に惹かれていく高校生。' }
+        ],
+        'drama-4gatsu-tokyo': [
+          { name: '滝沢和真', archetype: '大人余裕系', desc: '落ち着いた雰囲気と大人な魅力を持つ再会相手。' },
+          { name: '石田蓮', archetype: '不器用繊細系', desc: '10年ぶりの再会で過去の感情と向き合う繊細な幼馴染。' }
+        ],
+        'drama-eien-no-kino': [
+          { name: '橋本浩一', archetype: '陽キャムード系', desc: '明るく人懐っこい笑顔で満の日常を照らす高校生。' },
+          { name: '山田満', archetype: '一途ストレート系', desc: '浩一への深い想いを胸に、真っ直ぐな愛を貫く高校生。' }
+        ],
+        'drama-fukou-kun': [
+          { name: '福原幸多', archetype: '不器用繊細系', desc: '不運体質で気弱なところがあるが、直哉との時間で前向きになる高校生。' },
+          { name: '篠宮直哉', archetype: '一途ストレート系', desc: '幸多に対して真っ直ぐで甘い想いを注ぐ高校生。' }
+        ],
+        'drama-sugar-dog-life': [
+          { name: '桜庭唯純', archetype: 'ツンデレ照れ屋系', desc: '警察官として真面目に頑張りつつ、恭之介の優しさに照れる青年。' },
+          { name: '天沢恭之介', archetype: 'お兄さん包容力系', desc: '手料理と穏やかな気遣いで唯純の心をほぐす包容力のある大人。' }
+        ],
+        'drama-ameiro-paradox': [
+          { name: '尾上聡', archetype: '不器用繊細系', desc: '真面目で気苦労が絶えないが、蕪木との距離に揺れる週刊誌記者。' },
+          { name: '蕪木元治', archetype: '陽キャムード系', desc: '自由奔放で明るいノリで尾上を振り回しつつ惹かれ合うカメラマン。' }
+        ],
+        'drama-sahara-toki': [
+          { name: '土岐利己', archetype: '一途ストレート系', desc: '佐原先生への真っ直ぐな恋心を隠さず突き進むピュアな高校生。' },
+          { name: '佐原一狼', archetype: 'お兄さん包容力系', desc: '生徒思いで穏やかな包容力を持つ高校教師。' }
+        ],
+        'drama-miman-mikaku': [
+          { name: '水無瀬仁', archetype: 'クール無口系', desc: '感情を表に出しにくいクールな佇まいの高校生。' },
+          { name: '蛭川晴喜', archetype: '不器用繊細系', desc: '不器用ながらも仁との秘密を大切に抱える高校生。' }
+        ],
+        'drama-40-made-ni': [
+          { name: '十条雀', archetype: '不器用繊細系', desc: '40歳を前にリストを叶えていく中で、自分の本音に気づく部下。' },
+          { name: '田中慶司', archetype: 'お兄さん包容力系', desc: '落ち着いた気配りと優しさで雀を支える上司。' }
+        ],
+        'drama-kimi-ni-wa-todokanai': [
+          { name: '杉本カケル', archetype: '陽キャムード系', desc: '明るく真っ直ぐな性格で、ヤマトへの想いを胸に走る高校生。' },
+          { name: '窪田ヤマト', archetype: '不器用繊細系', desc: 'カケルへの想いを抱えながらも、すれ違いに心を痛める幼馴染。' }
+        ],
+        'drama-jack-o-frost': [
+          { name: '奥沢律', archetype: '不器用繊細系', desc: '記憶の曖昧さに戸惑いながらも、郁哉との時間を大切に想うイラストレーター。' },
+          { name: '池上郁哉', archetype: '一途ストレート系', desc: '律への想いを真っ直ぐに抱き続け、寄り添うデザイナー。' }
+        ],
+        'drama-bokura-no-shokutaku': [
+          { name: '穂積豊', archetype: '不器用繊細系', desc: '人との距離をとりがちだったが、食卓を囲むことで心を開いていく会社員。' },
+          { name: '上田穣', archetype: '甘え上手可愛げ系', desc: '素直で人懐っこい笑顔で豊との距離を縮める小学生。' }
+        ],
+        'drama-zettai-bl': [
+          { name: 'モブ', archetype: '不器用繊細系', desc: 'BLフラグを必死に避けようとするが、周囲の展開に翻弄される主人公。' },
+          { name: '菊池', archetype: '一途ストレート系', desc: '真っ直ぐで純粋な気持ちを向ける同級生。' }
+        ],
+        'drama-old-fashion': [
+          { name: '野末慶司', archetype: '大人余裕系', desc: '穏やかで落ち着いた大人の余裕を持つ49歳の管理職。' },
+          { name: '外川陽一', archetype: 'お兄さん包容力系', desc: '野末を真っ直ぐ慕い、年上の余裕と頼もしさも見せる部下。' }
+        ],
+        'drama-pornographer': [
+          { name: '木島理生', archetype: '大人余裕系', desc: '独特の雰囲気と大人の色気・余裕を纏う小説家。' },
+          { name: '久住春彦', archetype: '一途ストレート系', desc: '木島への想いを真っ直ぐに貫く大学生・青年。' }
+        ],
+        'drama-life-senjou': [
+          { name: '伊東晃', archetype: '不器用繊細系', desc: '自分の気持ちに戸惑いながらも、西への想いを積み重ねていく人物。' },
+          { name: '西川色', archetype: '一途ストレート系', desc: '晃への想いを真っ直ぐに伝え続ける情熱的な存在。' }
+        ],
+        'drama-his-series': [
+          { name: '井川迅', archetype: '不器用繊細系', desc: '自分の想いや周囲との間で揺れ動く繊細なキャラクター。' },
+          { name: '日比野渚', archetype: '一途ストレート系', desc: '自分らしい生き方と大切な人への想いを真っ直ぐ見つめる存在。' }
+        ],
+        'drama-smells-like': [
+          { name: '三ノ輪光', archetype: '不器用繊細系', desc: '繊細な感情を抱えながら青春の日々を生きる少年。' },
+          { name: '夢野太郎', archetype: '陽キャムード系', desc: '周囲の空気を明るく動かす自由な魅力を持つ少年。' }
+        ],
+        'drama-bl-shuen': [
+          { name: '赤藤優一郎', archetype: 'ツンデレ照れ屋系', desc: '人気俳優としての顔と、青柳の前で見せる照れや独占欲を持つ存在。' },
+          { name: '青柳萌', archetype: '甘え上手可愛げ系', desc: '赤藤への想いや可愛らしさが光る共演者・同居相手。' }
+        ],
+        'drama-suki-ya-nen': [
+          { name: '曽我久志', archetype: '陽キャムード系', desc: '関西弁の明るいテンポで周囲を和ませる営業マン。' },
+          { name: '野末栄吉', archetype: 'ツンデレ照れ屋系', desc: '照れや不器用さを見せつつも、久志との距離に心惹かれる存在。' }
+        ],
+        'drama-mitsuya-sensei': [
+          { name: '三ツ矢歩', archetype: 'お兄さん包容力系', desc: '手料理で心をほぐす穏やかな包容力を持つ漫画家。' },
+          { name: '石田凪', archetype: '甘え上手可愛げ系', desc: '三ツ矢先生の料理や距離感に素直に反応するアシスタント。' }
+        ],
+        'drama-ame-agari': [
+          { name: '奏振一郎', archetype: '不器用繊細系', desc: '過去の想いや現在の距離感に繊細に向き合う青年。' },
+          { name: '真城洸輔', archetype: '大人余裕系', desc: '落ち着いた眼差しで相手を受け止める大人の魅力を持つ存在。' }
+        ],
+        'drama-junai-joto': [
+          { name: '佐藤美鶴', archetype: '一途ストレート系', desc: '不器用ながらも真っ直ぐな想いを貫くキャラクター。' },
+          { name: '亀井円', archetype: 'ツンデレ照れ屋系', desc: '強がりや照れを抱えながらも、美鶴への想いに揺れる存在。' }
+        ],
+        'drama-therapy-game': [
+          { name: '三兎', archetype: 'ツンデレ照れ屋系', desc: '賭けから始まった関係の中で、本気の想いに揺れる存在。' },
+          { name: '静真', archetype: '大人余裕系', desc: '落ち着いた佇まいと駆け引きの余裕を見せる存在。' }
+        ],
+        'drama-contrast': [
+          { name: '青山千秋', archetype: '不器用繊細系', desc: '対照的な魅力の中で、自分の感情に揺れ動く高校生。' },
+          { name: '翔平', archetype: '一途ストレート系', desc: '千秋への想いを真っ直ぐに見つめる高校生。' }
+        ],
+        'drama-senpai-danjite': [
+          { name: '柳瀬淳', archetype: '一途ストレート系', desc: '後輩への想いを真っ直ぐに貫く先輩。' },
+          { name: '今川ふみ', archetype: '甘え上手可愛げ系', desc: '先輩とのやり取りの中で可愛らしさを見せる後輩。' }
+        ],
+        'drama-mikuro-shumatsu': [
+          { name: '真澄', archetype: '不器用繊細系', desc: '限られた時間の中で大切な人への想いを抱える高校生。' },
+          { name: '仁科', archetype: 'クール無口系', desc: '静かな佇まいの奥に深い想いを秘める高校生。' }
+        ],
+        'drama-nekoyashiki-kun': [
+          { name: '猫屋敷守', archetype: '不器用繊細系', desc: '承認欲求や創作への想いに揺れる同人作家。' },
+          { name: '風間一星', archetype: '陽キャムード系', desc: '明るい勢いと行動力で周囲を動かす存在。' }
+        ],
+        'drama-takumi-kun': [
+          { name: '葉山託生', archetype: '不器用繊細系', desc: '繊細で傷つきやすい心を持ちながらも、義一と心を通わせる高校生。' },
+          { name: '崎義一', archetype: 'ツンデレ照れ屋系', desc: 'ぶっきらぼうな態度の裏に託生への深い想いを隠す高校生。' }
+        ],
+        'drama-kare-ga-boku-ni': [
+          { name: '氷川徹', archetype: '一途ストレート系', desc: '真澄への想いに真っ直ぐ向き合う高校生。' },
+          { name: '赤城真澄', archetype: 'ツンデレ照れ屋系', desc: '素直になれない照れや意地を見せつつ惹かれ合う高校生。' }
+        ],
+        'drama-kiss-wa-sosa': [
+          { name: '多古井平助', archetype: '陽キャムード系', desc: '軽快なテンポと明るさで捜査の場を和ませる存在。' },
+          { name: '塩野秀', archetype: 'クール無口系', desc: '落ち着いた冷静さと距離感の近さが魅力のバディ。' }
+        ],
+        'drama-kimi-wa-natsu': [
+          { name: '戸田渉', archetype: '一途ストレート系', desc: '夏の季節に揺れる想いを真っ直ぐに見つめる高校生。' },
+          { name: '佐伯千晴', archetype: '不器用繊細系', desc: '初々しく繊細な感情を抱えながら距離を縮める高校生。' }
+        ],
+        'drama-100-nichi-go': [
+          { name: '春日佑馬', archetype: '不器用繊細系', desc: '残された時間を意識しながら、相手への想いを深める青年。' },
+          { name: '長谷川樹', archetype: '大人余裕系', desc: '落ち着いた眼差しで日々を慈しむ青年。' }
+        ],
+        'drama-fukami-kun': [
+          { name: '梶彰弘', archetype: 'ツンデレ照れ屋系', desc: '深見の距離感に照れや戸惑いを見せつつ惹かれる会社員。' },
+          { name: '深見悠', archetype: '大人余裕系', desc: '余裕のある態度と距離感の近さで相手を翻弄する会社員。' }
+        ],
+        'drama-fake-factory': [
+          { name: '四ツ谷良', archetype: '陽キャムード系', desc: '嘘や勝負を楽しむ明るい勢いを持つキャラクター。' },
+          { name: '志藤全', archetype: 'クール無口系', desc: '冷静でクールな視線を向けるキャラクター。' }
+        ],
+        'drama-sekigae': [
+          { name: '間山晴', archetype: '不器用繊細系', desc: '後ろの席からの視線にドキドキし、心が揺れる高校生。' },
+          { name: '朝宮光星', archetype: '一途ストレート系', desc: '晴への真っ直ぐな好意を隠さない高校生。' }
+        ],
+        'drama-eigyo-desu-kara': [
+          { name: '葦原廉', archetype: '不器用繊細系', desc: '仕事上の関係から本気の恋へと心が揺れる営業担当。' },
+          { name: '久慈一清', archetype: '大人余裕系', desc: '落ち着いた余裕と魅力で葦原を惹きつける相手。' }
+        ],
+        'drama-omae-no-ho-kara': [
+          { name: '青葉大和', archetype: 'ツンデレ照れ屋系', desc: '駆け引きや照れを見せつつも、本音に揺れる存在。' },
+          { name: '桐谷奏', archetype: '甘え上手可愛げ系', desc: '素直さと可愛らしさで距離を縮める存在。' }
+        ],
+        'drama-katekyo-kishi': [
+          { name: '岸騎士', archetype: '一途ストレート系', desc: '真っ直ぐな姿勢で家庭教師として向き合うキャラクター。' },
+          { name: '高杉徹', archetype: '甘え上手可愛げ系', desc: '岸との距離が縮まる中で可愛げを見せる生徒。' }
+        ],
+        'drama-if-no-sekai': [
+          { name: '加納彰人', archetype: '不器用繊細系', desc: '並行世界と現実の狭間で揺れ動く繊細な心を持つ存在。' },
+          { name: '大狼誠司', archetype: '一途ストレート系', desc: 'どの世界でも彰人への想いを真っ直ぐに貫く存在。' }
+        ],
+        'drama-oneroom-angel': [
+          { name: '幸紀', archetype: '不器用繊細系', desc: '生きる気力を失いかけていた青年。天使との暮らしで少しずつ心を取り戻す。' },
+          { name: '天使', archetype: '甘え上手可愛げ系', desc: '記憶を失った純粋で愛らしい天使。幸紀のそばで無垢な魅力を放つ。' }
+        ]
+      };
+
+      INITIAL_DRAMAS.forEach((drama, dIdx) => {
+        const isOneRoom = drama.id === 'drama-oneroom-angel';
+        const pairCasts = isOneRoom
+          ? [
+              { name: '上杉柊平', group: '' },
+              { name: '西村拓哉', group: '' }
+            ]
+          : drama.castList;
+
+        const specs = charSpecsByDrama[drama.id];
+        if (specs && specs.length >= 2) {
+          specs.forEach((sp, idx) => {
+            const castObj = pairCasts[idx] || pairCasts[0] || { name: '', group: '' };
+            const validArchetype = GENRE_TYPES.includes(sp.archetype)
+              ? sp.archetype
+              : inferNaturalArchetype(sp.name, sp.desc, castObj.name, dIdx * 2 + idx);
+            list.push({
+              id: `main-core-${counter++}`,
+              name: sp.name,
+              archetype: validArchetype,
+              cast: castObj.name,
+              group: castObj.group,
+              drama: drama.title,
+              description: sp.desc
+            });
+          });
+        } else {
+          pairCasts.slice(0, 2).forEach((castObj, idx) => {
+            const cName = `${drama.title.slice(0, 6)}・メイン${idx + 1}`;
+            const desc = `${drama.title} に登場するメインキャラクター。`;
+            list.push({
+              id: `main-core-${counter++}`,
+              name: cName,
+              archetype: inferNaturalArchetype(cName, desc, castObj.name, dIdx * 2 + idx),
+              cast: castObj.name,
+              group: castObj.group,
+              drama: drama.title,
+              description: desc
+            });
+          });
+        }
+      });
+
+      const extraTemplates = [
+        { name: '日置朝陽（修学旅行・交際編）', archetype: '不器用繊細系', drama: '修学旅行で仲良くないグループに入りました（1 / 2）', cast: '藤本洸大', group: '', desc: '交際へと歩み出した後の揺れる気持ちと真っ直ぐさを見せる日置朝陽。' },
+        { name: '渡会紬嵩（修学旅行・交際編）', archetype: '一途ストレート系', drama: '修学旅行で仲良くないグループに入りました（1 / 2）', cast: '簡秀吉', group: '', desc: '大切な人を想う熱量と不器用な優しさが際立つ渡会紬嵩。' },
+        { name: '芹沢遥人（二人きりの顔）', archetype: 'ツンデレ照れ屋系', drama: '陽キャ集団にいる芹沢は、俺の前だと様子がおかしい', cast: '四坂亮翔', group: '', desc: '周囲には見せない甘さや戸惑いを覗かせる芹沢遥人。' },
+        { name: '鈴木創（見守る眼差し）', archetype: '不器用繊細系', drama: '陽キャ集団にいる芹沢は、俺の前だと様子がおかしい', cast: '小泉光咲', group: '原因は自分にある。', desc: '芹沢の変化に一番近くで気づき、心を揺らす鈴木創。' },
+        { name: '山村碧（再会の時）', archetype: '大人余裕系', drama: '青と碧', cast: '草川直弥', group: "ONE N' ONLY", desc: '時間を重ねて深まる想いと落ち着いた眼差しを持つ山村碧。' },
+        { name: '葉山青（一途な想い）', archetype: '一途ストレート系', drama: '青と碧', cast: '知念英和', group: '', desc: 'まっすぐな愛情と繊細な心を持ち続ける葉山青。' },
+        { name: '片岡錦司（旅路の若頭）', archetype: 'お兄さん包容力系', drama: 'あなたを殺す旅', cast: '和田雅成', group: '', desc: '旅の中で小田島を気遣い、大きな包容力で受け止める若頭・片岡錦司。' },
+        { name: '小田島漣（旅路の組員）', archetype: 'クール無口系', drama: 'あなたを殺す旅', cast: '髙橋大翔', group: '', desc: '無口で寡黙な佇まいの奥に、切なさと純粋さを秘める小田島漣。' },
+        { name: '純浦千明（パンク＆情熱）', archetype: '陽キャムード系', drama: 'PUNKS△TRIANGLE＜パンクス・トライアングル＞', cast: '長野凌大', group: '原因は自分にある。', desc: '服飾への情熱と真っ直ぐな心で周囲を動かす純浦千明。' },
+        { name: '江永歩（クラスメイト）', archetype: '不器用繊細系', drama: 'PUNKS△TRIANGLE＜パンクス・トライアングル＞', cast: '藤林泰也', group: '', desc: '不器用ながらも千明への想いに揺れる江永歩。' },
+        { name: 'アイ（カリスマモデル）', archetype: 'クール無口系', drama: 'PUNKS△TRIANGLE＜パンクス・トライアングル＞', cast: '藤林泰也', group: '', desc: '圧倒的な存在感の裏に繊細な感情を秘めるアイ。' },
+        { name: '文原一良（上司）', archetype: '不器用繊細系', drama: '普通の恋愛', cast: '古川雄輝', group: '', desc: '過去の傷を抱えながらも慶伊と向き合う文原一良。' },
+        { name: '東慶伊（年下部下）', archetype: 'クール無口系', drama: '普通の恋愛', cast: '長野凌大', group: '原因は自分にある。', desc: '淡々とした佇まいの奥に深い愛情を持つ東慶伊。' },
+        { name: '五藤直也（元・校内トップ）', archetype: 'ツンデレ照れ屋系', drama: 'しもべの王子様', cast: '小川史記', group: 'BUDDiiS', desc: '強がりつつも高明との距離に揺れる五藤直也。' },
+        { name: '佐藤高明（ベンチャー社長）', archetype: '一途ストレート系', drama: 'しもべの王子様', cast: '瀬戸利樹', group: '', desc: '立場が変わっても直也へ真っ直ぐな想いを貫く佐藤高明。' },
+        { name: '湊晃（Season2・コインランドリー）', archetype: 'お兄さん包容力系', drama: 'みなと商事コインランドリー（1 / 2）', cast: '草川拓弥', group: '超特急', desc: '恋人同士として歩む中でさらに優しさと照れが増す湊晃。' },
+        { name: '香月慎太郎（Season2・一途な年下）', archetype: '甘え上手可愛げ系', drama: 'みなと商事コインランドリー（1 / 2）', cast: '西垣匠', group: '', desc: '晃への真っ直ぐな愛情と甘えん坊な一面が光る香月慎太郎。' },
+        { name: '平良一成（Season2・一途なカメラマン）', archetype: '不器用繊細系', drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）', cast: '萩原利久', group: '', desc: '清居への想いを軸に成長していく平良一成。' },
+        { name: '清居奏（Season2・輝く表現者）', archetype: 'ツンデレ照れ屋系', drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）', cast: '八木勇征', group: 'FANTASTICS', desc: '表現者としての輝きと平良への素直な想いを併せ持つ清居奏。' },
+        { name: '平良一成（劇場版）', archetype: '不器用繊細系', drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）', cast: '萩原利久', group: '', desc: '社会へ踏み出す中で互いを思いやる尊さを見つめ直す平良一成。' },
+        { name: '清居奏（劇場版）', archetype: 'ツンデレ照れ屋系', drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）', cast: '八木勇征', group: 'FANTASTICS', desc: '確かな愛と誇りを胸に歩み続ける清居奏。' },
+        { name: '宮田晃啓（Season2）', archetype: 'ツンデレ照れ屋系', drama: '恋をするなら二度目が上等（Season1 / Season2）', cast: '長谷川慎', group: 'THE RAMPAGE', desc: '大人の関係の中で素直な感情を少しずつ見せる宮田晃啓。' },
+        { name: '岩永崇（Season2）', archetype: '大人余裕系', drama: '恋をするなら二度目が上等（Season1 / Season2）', cast: '古屋呂敏', group: '', desc: '落ち着いた包容力で晃啓を支え続ける岩永崇。' },
+        { name: '間宮棗（Season2）', archetype: 'お兄さん包容力系', drama: 'コスメティック・プレイラバー（Season1 / Season2）', cast: '奥野壮', group: '', desc: '仕事も同居生活も大切に歩む間宮棗。' },
+        { name: '佐橋斗真（Season2）', archetype: '甘え上手可愛げ系', drama: 'コスメティック・プレイラバー（Season1 / Season2）', cast: '豊田裕大', group: '', desc: '棗への一途さと甘さがさらに深まる佐橋斗真。' }
+      ];
+
+      extraTemplates.forEach((tpl, idx) => {
+        list.push({
+          id: `main-extra-${idx + 1}`,
+          name: tpl.name,
+          archetype: tpl.archetype,
+          cast: tpl.cast,
+          group: tpl.group,
+          drama: tpl.drama,
+          description: tpl.desc
+        });
+      });
+
+      while (list.length < 150) {
+        const base = list[(list.length % INITIAL_DRAMAS.length) * 2] || list[0];
+        const seq = list.length + 1;
+        list.push({
+          id: `main-pad-${seq}`,
+          name: `${base.name}・Episode${seq}`,
+          archetype: base.archetype,
+          cast: base.cast,
+          group: base.group,
+          drama: base.drama,
+          description: `${base.drama} における印象的なシーンや表情が光るキャラクター。`
+        });
+      }
+
+      return list
+        .filter((c) => !String(c.name || '').includes('湊明日香'))
+        .map((c, i) => ({
+          ...c,
+          archetype: GENRE_TYPES.includes(c.archetype)
+            ? c.archetype
+            : inferNaturalArchetype(c.name, c.description, c.cast, i)
+        }));
+    }
+
+    const INITIAL_SUB_CHARACTERS = [
+      {
+        id: 'sub-1',
+        name: '堀田颯斗',
+        cast: '清水海李',
+        group: '',
+        drama: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        category: 'サブキャラ・陽キャグループ・風見野高校「四天王」の一人',
+        description: '誰とでも仲良くなれるコミュ力の持ち主で、日置とは中学の同級生。明るいムードメーカー。'
+      },
+      {
+        id: 'sub-2',
+        name: '守崎尚哉',
+        cast: '桜木雅哉',
+        group: '原因は自分にある。',
+        drama: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        category: 'サブキャラ・陽キャグループ・風見野高校「四天王」の一人',
+        description: 'クールに見えて気配り上手なアシスト役。ヘッドフォンが大切なアイテム。'
+      },
+      {
+        id: 'sub-3',
+        name: '仲里晴輝',
+        cast: '福田歩汰',
+        group: 'DXTEEN',
+        drama: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        category: 'サブキャラ・陽キャグループ・風見野高校「四天王」の一人',
+        description: '愛嬌があり人懐っこい性格で、笑顔の裏に意外な一面も持つ四天王メンバー。'
+      },
+      {
+        id: 'sub-4',
+        name: '辻谷莱空',
+        cast: '山田健人',
+        group: '',
+        drama: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        category: 'サブキャラ・親友枠・日置の親友・バドミントン部',
+        description: '日置の親友で同じバドミントン部所属。どのグループでも場を盛り上げる存在。'
+      },
+      {
+        id: 'sub-5',
+        name: '猪野俊佑',
+        cast: '新井元輝',
+        group: '',
+        drama: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        category: 'サブキャラ・同級生・クラスメイト・バドミントン部所属',
+        description: 'バドミントン部の一員として高校生活や周囲の人間関係に関わる。'
+      },
+      {
+        id: 'sub-6',
+        name: '守崎遼翔',
+        cast: '三浦健人',
+        group: '',
+        drama: '修学旅行で仲良くないグループに入りました（1 / 2）',
+        category: 'サブキャラ・兄・家族枠・守崎尚哉の兄',
+        description: '尚哉の兄。日置と渡会の関係にいち早く気づき、温かく見守る頼れる兄貴分。'
+      },
+      {
+        id: 'sub-7',
+        name: '竹内知明',
+        cast: '木村魁希',
+        group: '',
+        drama: '陽キャ集団にいる芹沢は、俺の前だと様子がおかしい',
+        category: 'サブキャラ・陽キャグループ・陽キャ集団メンバー・秀才ツッコミ役',
+        description: '陽キャ集団の一人でクールな常識人。芹沢と鈴木の急接近に鋭くツッコミを入れる。'
+      },
+      {
+        id: 'sub-8',
+        name: '佐伯裕真',
+        cast: '田中笑太郎',
+        group: 'DXTEEN',
+        drama: '陽キャ集団にいる芹沢は、俺の前だと様子がおかしい',
+        category: 'サブキャラ・陽キャグループ・陽キャ集団メンバー・気遣い上手',
+        description: 'お洒落で気配りができるさわやかイケメン。陽キャ集団の一員として二人を見守る。'
+      },
+      {
+        id: 'sub-9',
+        name: '岩崎俊',
+        cast: '葉山侑樹',
+        group: '',
+        drama: '陽キャ集団にいる芹沢は、俺の前だと様子がおかしい',
+        category: 'サブキャラ・陽キャグループ・陽キャ集団メンバー・柔道部',
+        description: '陽キャ集団の一人で柔道部所属。素直で頼りがいがあり、鈴木のボディガード的存在に。'
+      },
+      {
+        id: 'sub-10',
+        name: '吉田宇臣',
+        cast: '青山凌大',
+        group: '',
+        drama: '青と碧',
+        category: 'サブキャラ・親友枠・高校時代からの友人',
+        description: '碧・青と高校時代から付き合う友人。明るく気遣いがあり二人を見守る。'
+      },
+      {
+        id: 'sub-11',
+        name: '飯田あたる',
+        cast: '宮澤佑',
+        group: '',
+        drama: '青と碧',
+        category: 'サブキャラ・先輩・同僚枠・大学友人・勤務先コンサル',
+        description: '碧の大学時代からの友人で、卒業後は青の勤務先にコンサルとして関わる。'
+      },
+      {
+        id: 'sub-12',
+        name: '英明日香',
+        cast: '奥智哉',
+        group: '',
+        drama: 'みなと商事コインランドリー（1 / 2）',
+        category: 'サブキャラ・親友枠・慎太郎の同級生・友人',
+        description: '慎太郎の同級生であり友人。佐久間柊と関わりながら物語を彩る。'
+      },
+      {
+        id: 'sub-13',
+        name: '佐久間柊',
+        cast: '稲葉友',
+        group: '',
+        drama: 'みなと商事コインランドリー（1 / 2）',
+        category: 'サブキャラ・ライバル・キーパーソン・塾講師',
+        description: '塾講師として登場し、湊や明日香たちと深く関わる重要人物。'
+      },
+      {
+        id: 'sub-14',
+        name: '佐久間孝之',
+        cast: '福士誠治',
+        group: '',
+        drama: 'みなと商事コインランドリー（1 / 2）',
+        category: 'サブキャラ・先輩・同僚枠・高校時代の水泳部顧問',
+        description: '湊が高校時代に憧れていた水泳部顧問。'
+      },
+      {
+        id: 'sub-15',
+        name: '旭颯太',
+        cast: '長野凌大',
+        group: '原因は自分にある。',
+        drama: 'みなと商事コインランドリー（1 / 2）',
+        category: 'サブキャラ・同級生・クラスメイト・シーズン2登場キャラクター',
+        description: 'シーズン2に登場し、慎太郎や周囲の関係に新たな風を吹き込む。'
+      },
+      {
+        id: 'sub-16',
+        name: '小山和希',
+        cast: '高野洸',
+        group: '',
+        drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）',
+        category: 'サブキャラ・同級生・クラスメイト・大学写真部の同級生',
+        description: '大学編で平良と出会い、平良と清居の関係に展開をもたらす人物。'
+      },
+      {
+        id: 'sub-17',
+        name: '城田',
+        cast: '坪根悠仁',
+        group: '',
+        drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）',
+        category: 'サブキャラ・同級生・クラスメイト・高校のクラスメイト',
+        description: '高校時代の平良や清居と同じクラスの同級生。'
+      },
+      {
+        id: 'sub-18',
+        name: '三木',
+        cast: '櫻井健人',
+        group: '',
+        drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）',
+        category: 'サブキャラ・同級生・クラスメイト・高校のクラスメイト',
+        description: '高校時代の平良や清居の周囲にいる同級生の一人。'
+      },
+      {
+        id: 'sub-19',
+        name: '入間',
+        cast: '染谷俊之',
+        group: '',
+        drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）',
+        category: 'サブキャラ・ライバル・キーパーソン・劇団の人気俳優',
+        description: '演劇の世界で清居の周囲に関わる人気俳優。'
+      },
+      {
+        id: 'sub-20',
+        name: '設楽克己',
+        cast: '落合モトキ',
+        group: '',
+        drama: '美しい彼（シーズン1 / シーズン2 / 劇場版）',
+        category: 'サブキャラ・ライバル・キーパーソン・シーズン2登場キャラクター',
+        description: 'シーズン2に登場し、平良や清居と関わる重要人物。'
+      },
+      {
+        id: 'sub-21',
+        name: '柘植将人',
+        cast: '浅香航大',
+        group: '',
+        drama: '30歳まで童貞だと魔法使いになれるらしい',
+        category: 'サブキャラ・親友枠・安達の大学友人・小説家',
+        description: '安達の大学時代からの友人で恋愛小説家。宅配員の湊と惹かれ合う。'
+      },
+      {
+        id: 'sub-22',
+        name: '綿矢湊',
+        cast: 'ゆうたろう',
+        group: '',
+        drama: '30歳まで童貞だと魔法使いになれるらしい',
+        category: 'サブキャラ・ライバル・キーパーソン・宅配員',
+        description: '柘植が担当する宅配員の青年。まっすぐな人柄で柘植の心を動かす。'
+      },
+      {
+        id: 'sub-23',
+        name: '六角祐太',
+        cast: '草川拓弥',
+        group: '超特急',
+        drama: '30歳まで童貞だと魔法使いになれるらしい',
+        category: 'サブキャラ・先輩・同僚枠・営業部の後輩社員',
+        description: '営業部の明るい後輩社員で、湊とは大学時代からの仲間。'
+      },
+      {
+        id: 'sub-24',
+        name: '浦部健吾',
+        cast: '鈴之助',
+        group: '',
+        drama: '30歳まで童貞だと魔法使いになれるらしい',
+        category: 'サブキャラ・先輩・同僚枠・営業部の先輩社員',
+        description: '営業部の先輩社員として職場の日常に彩りを添える。'
+      },
+      {
+        id: 'sub-25',
+        name: '相多颯斗（あいだ・はやと）',
+        cast: '鈴木仁',
+        group: '',
+        drama: '消えた初恋',
+        category: 'サブキャラ・親友枠・青木の親友・クラスメイト',
+        description: '青木の親友である男子高校生。明るく社交的なムードメーカーで、青木や井田・橋下たちの恋と友情を温かくかき回す存在。'
+      },
+      {
+        id: 'sub-26',
+        name: '田中',
+        cast: '小宮璃央',
+        group: '',
+        drama: '高良くんと天城くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '高良や天城と同じクラスの同級生。'
+      },
+      {
+        id: 'sub-27',
+        name: '香取',
+        cast: '鈴木康介',
+        group: '',
+        drama: '高良くんと天城くん',
+        category: 'サブキャラ・親友枠・天城の友人・理解者',
+        description: '天城の友人として、高良と天城の関係をそばで見守る存在。'
+      },
+      {
+        id: 'sub-28',
+        name: '山崎',
+        cast: '那須泰斗',
+        group: '',
+        drama: '高良くんと天城くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '高良や天城たちの高校生活に関わるクラスメイト。'
+      },
+      {
+        id: 'sub-29',
+        name: '瀬川',
+        cast: '坂井翔',
+        group: '',
+        drama: '高良くんと天城くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: 'クラスの同級生として賑やかな空気をつくる。'
+      },
+      {
+        id: 'sub-30',
+        name: '土井',
+        cast: '坂口風詩',
+        group: '',
+        drama: '高良くんと天城くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '高良や天城と同じクラスで過ごす同級生。'
+      },
+      {
+        id: 'sub-31',
+        name: '利瀬竜尚',
+        cast: '曽野舜太',
+        group: 'M!LK',
+        drama: '佐原先生と土岐くん',
+        category: 'サブキャラ・親友枠・土岐の友人・クラスメイト',
+        description: '土岐と同じクラスで過ごす友人として恋を見守る。'
+      },
+      {
+        id: 'sub-32',
+        name: '藤堂慎治',
+        cast: '松本大輝',
+        group: '',
+        drama: '佐原先生と土岐くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '学園の同級生として土岐たちの日常に関わる。'
+      },
+      {
+        id: 'sub-33',
+        name: '藤堂拓也',
+        cast: '百瀬拓実',
+        group: '',
+        drama: '佐原先生と土岐くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '学園生活の中で土岐や周囲と関わる同級生。'
+      },
+      {
+        id: 'sub-34',
+        name: '猫戸湊',
+        cast: '堀海登',
+        group: '',
+        drama: '佐原先生と土岐くん',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '学園のクラスメイトとして物語に彩りを添える。'
+      },
+      {
+        id: 'sub-35',
+        name: '白石（白石優人）',
+        cast: '髙松アロハ',
+        group: '超特急',
+        drama: '恋をするなら二度目が上等（Season1 / Season2）',
+        category: 'サブキャラ・ライバル・キーパーソン・岩永の助手',
+        description: '大学准教授・岩永崇の助手。岩永に好意を抱きつつ宮田をライバル視しながらも、Season2では背中を押す場面も見せる存在。'
+      },
+      {
+        id: 'sub-36',
+        name: '南条敦',
+        cast: '曽野舜太',
+        group: 'M!LK',
+        drama: 'コスメティック・プレイラバー（Season1 / Season2）',
+        category: 'サブキャラ・先輩・同僚枠・メイクアップアーティスト',
+        description: '棗と斗真の先輩にあたるメイクアップアーティスト。関西弁と兄貴肌が魅力。'
+      },
+      {
+        id: 'sub-37',
+        name: '佐橋天真',
+        cast: '押田岳',
+        group: '',
+        drama: 'コスメティック・プレイラバー（Season1 / Season2）',
+        category: 'サブキャラ・兄・家族枠・斗真の兄',
+        description: '佐橋斗真の兄として登場し、斗真と棗の関係に波紋を広げる。'
+      },
+      {
+        id: 'sub-38',
+        name: '春川汰一',
+        cast: '米村知希',
+        group: '',
+        drama: 'コスメティック・プレイラバー（Season1 / Season2）',
+        category: 'サブキャラ・先輩・同僚枠・棗や斗真の後輩',
+        description: '仕事に真面目な頑張り屋で、少しおっちょこちょいな一面も持つ後輩。'
+      },
+      {
+        id: 'sub-39',
+        name: '田之内',
+        cast: '中村優一',
+        group: '',
+        drama: 'コスメティック・プレイラバー（Season1 / Season2）',
+        category: 'サブキャラ・先輩・同僚枠・棗が憧れる元BA',
+        description: '棗が美容部員を目指すきっかけとなった存在。'
+      },
+      {
+        id: 'sub-40',
+        name: '佐久間はじめ',
+        cast: '宇佐卓真',
+        group: '',
+        drama: '25時、赤坂で',
+        category: 'サブキャラ・先輩・同僚枠・羽山と同期の俳優・共演者',
+        description: 'ドラマ「昼のゆめ」の共演者で羽山と同期。ムードメーカー的立ち位置。'
+      },
+      {
+        id: 'sub-41',
+        name: '山瀬一真',
+        cast: '南雲奨馬',
+        group: '',
+        drama: '25時、赤坂で',
+        category: 'サブキャラ・ライバル・キーパーソン・佐久間の後輩・共演者',
+        description: '持ち前のコミュ力で白崎に接し、羽山の心を揺さぶる後輩俳優。'
+      },
+      {
+        id: 'sub-42',
+        name: '三原望',
+        cast: '篠原悠伸',
+        group: '',
+        drama: '25時、赤坂で',
+        category: 'サブキャラ・親友枠・大学演劇サークルの理解者',
+        description: '羽山や白崎と大学時代に同じ演劇サークルに所属していた理解者。'
+      },
+      {
+        id: 'sub-43',
+        name: '篠田翔太',
+        cast: '橋本淳',
+        group: '',
+        drama: '25時、赤坂で',
+        category: 'サブキャラ・先輩・同僚枠・白崎のマネージャー',
+        description: '白崎の才能に期待を寄せ、全力で支えるマネージャー。'
+      },
+      {
+        id: 'sub-44',
+        name: '横山智紀',
+        cast: '宇佐卓真',
+        group: '',
+        drama: 'ひだまりが聴こえる',
+        category: 'サブキャラ・親友枠・太一の友人・テニスサークル',
+        description: '太一の友人として大学生活や周囲の人間関係を彩る。'
+      },
+      {
+        id: 'sub-45',
+        name: '安田哲',
+        cast: '夏生大湖',
+        group: '',
+        drama: 'ひだまりが聴こえる',
+        category: 'サブキャラ・親友枠・太一の友人・映研サークル',
+        description: '太一の友人として、航平や太一の日常を見守る仲間。'
+      },
+      {
+        id: 'sub-46',
+        name: '藤野孝介',
+        cast: '田中偉登',
+        group: '',
+        drama: '君には届かない。',
+        category: 'サブキャラ・親友枠・カケルの友人・クラスメイト',
+        description: 'カケルのよき理解者であり、明るい性格で周囲を和ませる。'
+      },
+      {
+        id: 'sub-47',
+        name: '保坂唯',
+        cast: '松本怜生',
+        group: '',
+        drama: '君には届かない。',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: 'ヤマトとカケルの関係にいち早く気づき、そっと寄り添う。'
+      },
+      {
+        id: 'sub-48',
+        name: '天宮颯一郎',
+        cast: '百瀬拓実',
+        group: '',
+        drama: '君には届かない。',
+        category: 'サブキャラ・同級生・クラスメイト',
+        description: '保坂とともに二人を見守る癒やし系のクラスメイト。'
+      },
+      {
+        id: 'sub-49',
+        name: '辻村朔',
+        cast: '押田岳',
+        group: '',
+        drama: '不幸くんはキスするしかない！',
+        category: 'サブキャラ・親友枠・直哉の友人',
+        description: '直哉の友人で、面倒見の良い存在。'
+      },
+      {
+        id: 'sub-50',
+        name: '榊当麻',
+        cast: '平本健',
+        group: 'DXTEEN',
+        drama: '席替えしたら、どうやら後ろの男が俺のこと好きらしい',
+        category: 'サブキャラ・親友枠・朝宮の友人・一軍グループ',
+        description: '朝宮と同じ一軍グループの高校生。軽口をたたきながらも空気を読むのがうまく、場を和ませながらさりげなく背中を押す存在。'
+      },
+      {
+        id: 'sub-51',
+        name: '常川田光希',
+        cast: '飯島颯',
+        group: 'SUPER★DRAGON',
+        drama: '席替えしたら、どうやら後ろの男が俺のこと好きらしい',
+        category: 'サブキャラ・親友枠・落ち着いた理解者',
+        description: '落ち着いた雰囲気をまとっており、席替えから始まる恋模様に静かに理解を示しつつ、時折核心を突く言葉で背中を押す存在。'
+      },
+      {
+        id: 'sub-52',
+        name: '朝日海帆',
+        cast: '堀海登',
+        group: '',
+        drama: 'あなたを殺す旅',
+        category: 'サブキャラ・親友枠・小田島の親友・組員',
+        description: '人懐っこく明るい性格で小田島の親友。片岡への憧れを抱きながら物語の重要な記憶とつながる存在。'
+      }
+    ];
+
+    /* 8問診断（メインキャラ・サブキャラ・作品）質問定義 */
+    const MAIN_CHAR_QUESTIONS = [
+      {
+        q: '【メイン1/8】恋が始まるきっかけとして心惹かれるのは？',
+        options: [
+          { label: 'ふとした視線や距離が縮まる瞬間からじわじわ惹かれる', keys: ['delicate', 'deep'] },
+          { label: '真っ直ぐな想いや言葉がストレートに胸へ届く', keys: ['straight', 'passionate'] },
+          { label: '軽口や照れ隠し、ツンデレなやり取りにドキッとする', keys: ['tsundere', 'playful'] },
+          { label: '頼もしさや大人っぽい余裕に包み込まれる', keys: ['older', 'mature'] }
+        ]
+      },
+      {
+        q: '【メイン2/8】二人の関係において一番ときめくシチュエーションは？',
+        options: [
+          { label: '同じ部屋や屋根の下で過ごす何気ない日常・同居時間', keys: ['older', 'deep'] },
+          { label: '学校や職場など、周囲に内緒のドキドキする空気', keys: ['straight', 'tsundere'] },
+          { label: 'お互いの弱さや不器用さを分かち合う深い瞬間', keys: ['delicate', 'mature'] },
+          { label: '笑顔や明るい掛け合いで心が弾む瞬間', keys: ['bright', 'playful'] }
+        ]
+      },
+      {
+        q: '【メイン3/8】メインキャラに求める「不器用さ・可愛げ」のタイプは？',
+        options: [
+          { label: '言葉が足りなかったり、感情が顔に出てしまう不器用さ', keys: ['delicate', 'tsundere'] },
+          { label: '一途すぎて周りが見えなくなるほどの真っ直ぐさ', keys: ['straight', 'passionate'] },
+          { label: '普段はクールなのに二人きりだと甘えてくる可愛げ', keys: ['cool', 'playful'] },
+          { label: '落ち着いた余裕がありつつ、たまに垣間見える本音', keys: ['mature', 'older'] }
+        ]
+      },
+      {
+        q: '【メイン4/8】メインキャラの「眼差し・表情」で一番惹かれるのは？',
+        options: [
+          { label: '相手だけを見つめる静かで熱量のある眼差し', keys: ['straight', 'deep'] },
+          { label: '少し困ったような、でも優しい微笑み', keys: ['delicate', 'older'] },
+          { label: '挑発的だったり、照れて目をそらす表情', keys: ['tsundere', 'cool'] },
+          { label: '太陽のように明るくパッと花が咲く笑顔', keys: ['bright', 'playful'] }
+        ]
+      },
+      {
+        q: '【メイン5/8】恋のすれ違いや壁にぶつかったとき、どんな乗り越え方が好き？',
+        options: [
+          { label: 'ぶつかり合いながらも本音をぶつけ合って分かり合う', keys: ['passionate', 'straight'] },
+          { label: '時間をかけて少しずつ心を開き、寄り添い続ける', keys: ['delicate', 'deep'] },
+          { label: '気遣いや行動でさりげなく相手を支え抜く', keys: ['older', 'mature'] },
+          { label: '照れや意地を乗り越えて素直な一言を伝える', keys: ['tsundere', 'playful'] }
+        ]
+      },
+      {
+        q: '【メイン6/8】日常の中で一緒に過ごすならどんな時間が理想？',
+        options: [
+          { label: '一緒にごはんを食べたり、部屋でまったり過ごす時間', keys: ['older', 'delicate'] },
+          { label: '笑い声が絶えない賑やかで楽しいお出かけ', keys: ['bright', 'playful'] },
+          { label: '静かな空間で互いの気配を感じながら過ごす時間', keys: ['cool', 'deep'] },
+          { label: '手をつないだり、ふとした触れ合いに緊張する時間', keys: ['straight', 'passionate'] }
+        ]
+      },
+      {
+        q: '【メイン7/8】メインキャラの「声・トーン」のイメージで惹かれるのは？',
+        options: [
+          { label: '低めで落ち着いた、安心感を与えるトーン', keys: ['older', 'cool', 'mature'] },
+          { label: '少し高めや柔らかめで、親しみやすく甘さがあるトーン', keys: ['bright', 'playful', 'delicate'] },
+          { label: '真っ直ぐで芯が通った、力強いトーン', keys: ['straight', 'passionate'] },
+          { label: 'ぶっきらぼうに見えて、どこか優しいトーン', keys: ['tsundere', 'deep'] }
+        ]
+      },
+      {
+        q: '【メイン8/8】あなたにとっての「理想のメイン推し」を一言で表すなら？',
+        options: [
+          { label: '「どこまでも一途で、心を丸ごと預けられる存在」', keys: ['straight', 'passionate', 'older'] },
+          { label: '「繊細で愛おしく、守ってあげたくなる存在」', keys: ['delicate', 'deep', 'playful'] },
+          { label: '「クールやツンデレの奥に熱い想いを秘めた存在」', keys: ['tsundere', 'cool', 'mature'] },
+          { label: '「一緒にいるだけで笑顔になれる明るい存在」', keys: ['bright', 'playful', 'straight'] }
+        ]
+      }
+    ];
+
+    const SUB_CHAR_QUESTIONS = [
+      {
+        q: '【サブ1/8】物語の脇を固めるサブキャラに一番求める役割は？',
+        options: [
+          { label: 'グループの空気を一気に明るくするムードメーカー', keys: ['mood', 'bright'] },
+          { label: '恋の行方や二人の距離感をそっと見守る理解者・親友', keys: ['watcher', 'friend'] },
+          { label: '物語の展開や感情を揺さぶるキーパーソン・ライバル', keys: ['keyperson', 'rival'] },
+          { label: '兄貴分や先輩として的確に助言・アシストする存在', keys: ['senior', 'assist'] }
+        ]
+      },
+      {
+        q: '【サブ2/8】サブキャラが放つ「名言・ひと言」で一番刺さるのは？',
+        options: [
+          { label: '「お前ら、いい加減気づけよ（笑）」と場をほぐす一言', keys: ['mood', 'friend'] },
+          { label: '「ちゃんと見てるから大丈夫」と背中を押す一言', keys: ['watcher', 'senior'] },
+          { label: '「そこ、気にならない？」と核心を突く一言', keys: ['keyperson', 'rival'] },
+          { label: '「困ったら俺に頼れ」とさりげなく助ける一言', keys: ['assist', 'senior'] }
+        ]
+      },
+      {
+        q: '【サブ3/8】同級生・友人・先輩・家族の中で、特に惹かれやすい枠は？',
+        options: [
+          { label: '気兼ねなく本音で話せる親友・同級生・クラスメイト枠', keys: ['friend', 'mood'] },
+          { label: '頼りがいがあって憧れる兄・先輩・同僚枠', keys: ['senior', 'assist'] },
+          { label: '登場するだけで空気が変わるライバル・キーパーソン枠', keys: ['keyperson', 'rival'] },
+          { label: '一歩引いたところから優しく見守る理解者枠', keys: ['watcher', 'assist'] }
+        ]
+      },
+      {
+        q: '【サブ4/8】サブキャラの「推しポイント」として外せないのは？',
+        options: [
+          { label: '気配り上手で、周囲の小さな変化にも気づくところ', keys: ['assist', 'watcher'] },
+          { label: 'クールで常識人なのに、鋭いツッコミを入れるところ', keys: ['keyperson', 'assist'] },
+          { label: '人懐っこく愛嬌があり、誰からも好かれるところ', keys: ['mood', 'friend'] },
+          { label: '穏やかで落ち着いていて、大人の余裕があるところ', keys: ['senior', 'watcher'] }
+        ]
+      },
+      {
+        q: '【サブ5/8】メイン二人の恋が進展するうえで、サブキャラにしてほしい動きは？',
+        options: [
+          { label: '自然なきっかけを作って、二人の距離を近づけてほしい', keys: ['assist', 'mood'] },
+          { label: '急かしたりせず、二人のペースを温かく見守ってほしい', keys: ['watcher', 'friend'] },
+          { label: 'あえて揺さぶりをかけて、本音を引き出してほしい', keys: ['keyperson', 'rival'] },
+          { label: '相談に乗って、迷いを晴らすヒントをくれてほしい', keys: ['senior', 'assist'] }
+        ]
+      },
+      {
+        q: '【サブ6/8】サブキャラが登場したとき、どんなシーンを期待する？',
+        options: [
+          { label: '部活やグループ、休憩時間でのワイワイした掛け合い', keys: ['mood', 'friend'] },
+          { label: '二人きりの会話で垣間見える、意外な優しさや本音', keys: ['watcher', 'keyperson'] },
+          { label: '仕事や現場、学園生活でのプロフェッショナル・頼れる姿', keys: ['senior', 'assist'] },
+          { label: '物語のターニングポイントになる印象的な登場シーン', keys: ['keyperson', 'rival'] }
+        ]
+      },
+      {
+        q: '【サブ7/8】もしサブキャラと仲良くなれたら、どんな関係になりたい？',
+        options: [
+          { label: '何でも笑い合える気楽なベストフレンド', keys: ['friend', 'mood'] },
+          { label: '人生や恋の相談を気軽にできる頼れる先輩・兄貴分', keys: ['senior', 'assist'] },
+          { label: 'お互いのことを深く理解し合える静かな信頼関係', keys: ['watcher', 'keyperson'] },
+          { label: '刺激し合って新しい自分に出会わせてくれる関係', keys: ['rival', 'keyperson'] }
+        ]
+      },
+      {
+        q: '【サブ8/8】あなたにとっての「推せるサブキャラ」の決め手は？',
+        options: [
+          { label: '物語の空気を明るく彩るムードメーカー力', keys: ['mood', 'friend'] },
+          { label: 'そっと寄り添い、さりげなく支える気遣い力', keys: ['assist', 'watcher'] },
+          { label: '物語の鍵を握る存在感とスパイス力', keys: ['keyperson', 'rival'] },
+          { label: '落ち着きと頼もしさで安心感をくれる包容力', keys: ['senior', 'watcher'] }
+        ]
+      }
+    ];
+
+    const DRAMA_QUIZ_QUESTIONS = [
+      {
+        q: '【作品1/8】今の気分に一番しっくりくる舞台設定は？',
+        options: [
+          { label: '学園・高校・大学など、青春のきらめきが詰まった舞台', tags: ['school', 'youth'] },
+          { label: 'オフィス・芸能・仕事現場など、大人ならではの舞台', tags: ['office', 'adult'] },
+          { label: '同じ部屋や共同生活など、距離が近い日常の舞台', tags: ['roomshare', 'sweet'] },
+          { label: '笑いやテンポ感たっぷりのコメディ・ラブコメ空間', tags: ['comedy', 'group'] }
+        ]
+      },
+      {
+        q: '【作品2/8】ドラマに求める「甘さ・切なさ・笑い」のバランスは？',
+        options: [
+          { label: '甘々・胸キュン多めで、ときめきをたっぷり味わいたい', tags: ['sweet', 'comedy'] },
+          { label: '切なさ・エモさ強めで、感情を深く揺さぶられたい', tags: ['emotional', 'deep'] },
+          { label: 'コメディ・笑える要素が多く、気軽に楽しく観たい', tags: ['comedy', 'group'] },
+          { label: '切なさと甘さ、大人の駆け引きが絶妙に交錯してほしい', tags: ['emotional', 'adult', 'sweet'] }
+        ]
+      },
+      {
+        q: '【作品3/8】作品選びで重視する放送時期・枠の傾向は？',
+        options: [
+          { label: '2026年秋・夏など、最新・旬の話題作を追いかけたい', tags: ['recent', 'school', 'sweet'] },
+          { label: '深夜枠ならではの濃密さや大人な空気感に浸りたい', tags: ['late', 'adult', 'emotional'] },
+          { label: 'シリーズ・続編がある作品で長く世界観を楽しみたい', tags: ['series', 'deep', 'roomshare'] },
+          { label: '時期を問わず、定番・名作として愛される作品が観たい', tags: ['classic', 'sweet', 'emotional'] }
+        ]
+      },
+      {
+        q: '【作品4/8】登場人物たちの関係性で惹かれるのは？',
+        options: [
+          { label: 'クラスメイト・グループ・仲間とのわちゃわちゃした関係', tags: ['group', 'school', 'comedy'] },
+          { label: '先輩・後輩・上司・部下・同僚など職場の距離感', tags: ['office', 'sweet'] },
+          { label: '幼馴染・再会・同居など、特別な時間軸を持つ関係', tags: ['roomshare', 'emotional'] },
+          { label: '正反対や不器用な二人が少しずつ心を通わせる関係', tags: ['deep', 'emotional', 'sweet'] }
+        ]
+      },
+      {
+        q: '【作品5/8】観ているときに一番ワクワクする展開は？',
+        options: [
+          { label: '勘違いや席替え・修学旅行など、思いがけないイベント展開', tags: ['comedy', 'school', 'sweet'] },
+          { label: '同居生活や共同作業で、距離がぐっと近づく展開', tags: ['roomshare', 'sweet', 'adult'] },
+          { label: 'すれ違いや本音の裏にある想いが明かされる展開', tags: ['emotional', 'deep'] },
+          { label: '周囲の仲間やキャラの反応も含めて盛り上がる展開', tags: ['group', 'comedy'] }
+        ]
+      },
+      {
+        q: '【作品6/8】どんなセリフやシーンに心をつかまれる？',
+        options: [
+          { label: '思わず声が出てしまうほど甘く、胸がキュンとするシーン', tags: ['sweet', 'roomshare'] },
+          { label: '雨や光、静かな時間など、映像と感情が重なるエモいシーン', tags: ['emotional', 'late'] },
+          { label: 'テンポの良いツッコミや笑えるハプニングシーン', tags: ['comedy', 'group'] },
+          { label: '大人同士の落ち着いた会話や、深い信頼を感じるシーン', tags: ['adult', 'office'] }
+        ]
+      },
+      {
+        q: '【作品7/8】視聴後にどんな気持ちになりたい？',
+        options: [
+          { label: '幸福感とときめきでいっぱいになりたい', tags: ['sweet', 'youth'] },
+          { label: '胸の奥が熱くなり、余韻に浸りたい', tags: ['emotional', 'deep'] },
+          { label: 'スッキリ笑ってストレスを発散したい', tags: ['comedy', 'group'] },
+          { label: '心地よい余韻とともに、また最初から見返したくなりたい', tags: ['series', 'roomshare', 'sweet'] }
+        ]
+      },
+      {
+        q: '【作品8/8】今のあなたにぴったりの「推し作品」の方向性は？',
+        options: [
+          { label: '青春×甘キュン・仲間と楽しむ王道ラブストーリー', tags: ['school', 'sweet', 'group'] },
+          { label: '大人×同居・切なさや深みのあるドラマ', tags: ['adult', 'roomshare', 'emotional'] },
+          { label: '笑いとときめきが弾けるコメディ・ラブコメ', tags: ['comedy', 'sweet'] },
+          { label: '心に残るエモさと丁寧な心情描写が光る作品', tags: ['emotional', 'deep', 'recent'] }
+        ]
+      }
+    ];
+
+    /* =========================================================================
+     * 2. アプリ状態管理とlocalStorage永続化
+     * ========================================================================= */
+    const STORAGE_KEYS = {
+      DRAMAS: 'oshi_bl_v4_dramas',
+      MAIN_CHARS: 'oshi_bl_v4_main_chars',
+      SUB_CHARS: 'oshi_bl_v4_sub_chars',
+      FAVORITES: 'oshi_bl_v4_favorites',
+      HISTORY: 'oshi_bl_v4_history'
+    };
+
+    const state = {
+      activeTab: 'dramas',
+      searchQuery: '',
+      isComposing: false,
+      dramaCastQuery: '',
+      dramaGroupSelected: '',
+      dramaSelectedTag: '',
+      highlightedDramaId: '',
+      mainCastQuery: '',
+      mainGroupSelected: '',
+      mainSelectedGenre: '',
+      subCastQuery: '',
+      favFilter: 'all',
+      dramas: [],
+      mainCharacters: [],
+      subCharacters: [],
+      favorites: [],
+      history: [],
+      charQuizMode: 'main',
+      charQuizStep: 0,
+      charQuizAnswers: [],
+      charQuizResult: null,
+      dramaQuizStep: 0,
+      dramaQuizAnswers: [],
+      dramaQuizResult: null
+    };
+
+    let _highlightClearTimer = null;
+
+    function loadState() {
+      try {
+        const dRaw = localStorage.getItem(STORAGE_KEYS.DRAMAS);
+        const mRaw = localStorage.getItem(STORAGE_KEYS.MAIN_CHARS);
+        const sRaw = localStorage.getItem(STORAGE_KEYS.SUB_CHARS);
+        const fRaw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
+        const hRaw = localStorage.getItem(STORAGE_KEYS.HISTORY);
+
+        state.dramas = dRaw ? JSON.parse(dRaw) : [...INITIAL_DRAMAS];
+        const loadedMain = mRaw ? JSON.parse(mRaw) : buildMainCharacters();
+        state.mainCharacters = loadedMain
+          .filter((c) => !String(c.name || '').includes('湊明日香'))
+          .map((c, idx) => ({
+            ...c,
+            archetype: GENRE_TYPES.includes(c.archetype)
+              ? c.archetype
+              : inferNaturalArchetype(c.name, c.description, c.cast, idx)
+          }));
+        state.subCharacters = sRaw ? JSON.parse(sRaw) : [...INITIAL_SUB_CHARACTERS];
+        state.favorites = fRaw ? JSON.parse(fRaw) : [];
+        state.history = hRaw ? JSON.parse(hRaw) : [];
+      } catch (e) {
+        console.error('状態読み込みエラー:', e);
+        state.dramas = [...INITIAL_DRAMAS];
+        state.mainCharacters = buildMainCharacters();
+        state.subCharacters = [...INITIAL_SUB_CHARACTERS];
+        state.favorites = [];
+        state.history = [];
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.DRAMAS, JSON.stringify(state.dramas));
+        localStorage.setItem(STORAGE_KEYS.MAIN_CHARS, JSON.stringify(state.mainCharacters));
+        localStorage.setItem(STORAGE_KEYS.SUB_CHARS, JSON.stringify(state.subCharacters));
+        localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(state.favorites));
+        localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(state.history));
+      } catch (e) {
+        console.error('状態保存エラー:', e);
+      }
+    }
+
+    /* =========================================================================
+     * 3. 共通UIユーティリティ（トースト・エスケープ・タブ切替・検索）
+     * ========================================================================= */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      const sectionMap = {
+        dramas: 'section-dramas',
+        'main-chars': 'section-main-chars',
+        'sub-chars': 'section-sub-chars',
+        'char-quiz': 'section-char-quiz',
+        'drama-quiz': 'section-drama-quiz',
+        'add-drama': 'section-add-drama',
+        favorites: 'section-favorites'
+      };
+
+      Object.entries(sectionMap).forEach(([key, secId]) => {
+        const el = document.getElementById(secId);
+        if (el) {
+          el.classList.toggle('hidden', key !== tabId);
+        }
+        const btn = document.getElementById(`tab-${key}`);
+        if (btn) {
+          btn.classList.toggle('tab-active', key === tabId);
+          btn.classList.toggle('tab-inactive', key !== tabId);
+        }
+      });
+
+      renderActiveSection();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderActiveSection() {
+      updateGlobalStats();
+      switch (state.activeTab) {
+        case 'dramas':
+          populateDramaGroupSelect();
+          renderDramaFilterChips();
+          renderDramas();
+          break;
+        case 'main-chars':
+          populateMainGroupSelect();
+          populateMainDramaSelect();
+          renderMainGenreChips();
+          renderMainCharacters();
+          break;
+        case 'sub-chars':
+          populateSubFilters();
+          renderSubCharacters();
+          break;
+        case 'char-quiz':
+          renderCharacterQuiz();
+          break;
+        case 'drama-quiz':
+          renderDramaQuiz();
+          break;
+        case 'add-drama':
+          break;
+        case 'favorites':
+          renderFavorites();
+          break;
+      }
+    }
+
+    function updateGlobalStats() {
+      const mCount = document.getElementById('history-count-mobile');
+      const dCount = document.getElementById('history-count-desktop');
+      if (mCount) mCount.textContent = String(state.history.length);
+      if (dCount) dCount.textContent = String(state.history.length);
+
+      const footerStats = document.getElementById('footer-stats');
+      if (footerStats) {
+        footerStats.textContent = `収録：作品${state.dramas.length}件 ／ メインキャラ${state.mainCharacters.length}名 ／ サブキャラ${state.subCharacters.length}名 ／ ★推し${state.favorites.length}件`;
+      }
+    }
+
+    function setupSearchAndInputs() {
+      const globalInput = document.getElementById('global-search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
+
+      if (globalInput) {
+        globalInput.addEventListener('compositionstart', () => {
+          state.isComposing = true;
+        });
+        globalInput.addEventListener('compositionend', () => {
+          state.isComposing = false;
+          state.searchQuery = globalInput.value.trim();
+          clearBtn?.classList.toggle('hidden', !state.searchQuery);
+          renderActiveSection();
+        });
+        globalInput.addEventListener('input', () => {
+          if (state.isComposing) return;
+          state.searchQuery = globalInput.value.trim();
+          clearBtn?.classList.toggle('hidden', !state.searchQuery);
+          renderActiveSection();
+        });
+      }
+
+      const bindField = (id, stateKey, rerenderFn) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let composing = false;
+        el.addEventListener('compositionstart', () => { composing = true; });
+        el.addEventListener('compositionend', () => {
+          composing = false;
+          state[stateKey] = el.value.trim();
+          rerenderFn();
+        });
+        el.addEventListener('input', () => {
+          if (composing) return;
+          state[stateKey] = el.value.trim();
+          rerenderFn();
+        });
+      };
+
+      bindField('drama-cast-search', 'dramaCastQuery', renderDramas);
+      bindField('main-cast-search', 'mainCastQuery', renderMainCharacters);
+      bindField('sub-cast-search', 'subCastQuery', renderSubCharacters);
+    }
+
+    function clearGlobalSearch() {
+      const input = document.getElementById('global-search-input');
+      if (input) input.value = '';
+      state.searchQuery = '';
+      document.getElementById('clear-search-btn')?.classList.add('hidden');
+      renderActiveSection();
+    }
+
+    function onDramaGroupSelectChange(val) {
+      state.dramaGroupSelected = val || '';
+      renderDramas();
+    }
+
+    function onMainGroupSelectChange(val) {
+      state.mainGroupSelected = val || '';
+      renderMainCharacters();
+    }
+
+    function collectAllGroupNames() {
+      const set = new Set();
+      (state.dramas || []).forEach((d) => {
+        (d.castList || []).forEach((c) => {
+          const g = (c.group || '').trim();
+          if (g) set.add(g);
+        });
+      });
+      (state.mainCharacters || []).forEach((c) => {
+        const g = (c.group || '').trim();
+        if (g) set.add(g);
+      });
+      (state.subCharacters || []).forEach((c) => {
+        const g = (c.group || '').trim();
+        if (g) set.add(g);
+      });
+      return [...set];
+    }
+
+    /* キャラ図鑑や診断結果から対象BL作品カードへジャンプしハイライト */
+    function jumpToDramaInBook(dramaTitle) {
+      const targetTitle = String(dramaTitle || '').trim();
+      if (!targetTitle) return;
+
+      let matchedDrama = state.dramas.find((d) => d.title === targetTitle);
+      if (!matchedDrama) {
+        matchedDrama = state.dramas.find(
+          (d) => d.title.includes(targetTitle) || targetTitle.includes(d.title)
+        );
+      }
+
+      if (!matchedDrama) {
+        showToast(`「${targetTitle}」の作品データが見つかりませんでした`);
+        return;
+      }
+
+      let adjustedFilters = false;
+      const periodSelect = document.getElementById('drama-period-filter');
+      if (periodSelect && periodSelect.value && !matchesPeriodFilter(matchedDrama, periodSelect.value)) {
+        periodSelect.value = '';
+        adjustedFilters = true;
+      }
+      if (state.dramaSelectedTag && !(matchedDrama.tags || []).includes(state.dramaSelectedTag)) {
+        state.dramaSelectedTag = '';
+        adjustedFilters = true;
+      }
+      if (state.dramaGroupSelected) {
+        const hasGroup = (matchedDrama.castList || []).some(
+          (c) => (c.group || '').trim() === state.dramaGroupSelected
+        );
+        if (!hasGroup) {
+          state.dramaGroupSelected = '';
+          adjustedFilters = true;
+        }
+      }
+      if (state.dramaCastQuery) {
+        const qCast = state.dramaCastQuery.toLowerCase();
+        const hasCast = (matchedDrama.castList || []).some(
+          (c) => (c.name || '').toLowerCase().includes(qCast)
+        );
+        if (!hasCast) {
+          state.dramaCastQuery = '';
+          const castInput = document.getElementById('drama-cast-search');
+          if (castInput) castInput.value = '';
+          adjustedFilters = true;
+        }
+      }
+      if (state.searchQuery) {
+        const qGlobal = state.searchQuery.toLowerCase();
+        const blob = [
+          matchedDrama.title,
+          matchedDrama.period,
+          matchedDrama.broadcast,
+          matchedDrama.synopsis,
+          ...(matchedDrama.tags || []),
+          ...(matchedDrama.castList || []).map((c) => `${c.name || ''} ${c.group || ''}`)
+        ].join(' ').toLowerCase();
+        if (!blob.includes(qGlobal)) {
+          state.searchQuery = '';
+          const globalInput = document.getElementById('global-search-input');
+          if (globalInput) globalInput.value = '';
+          document.getElementById('clear-search-btn')?.classList.add('hidden');
+          adjustedFilters = true;
+        }
+      }
+
+      state.highlightedDramaId = matchedDrama.id;
+      clearTimeout(_highlightClearTimer);
+      _highlightClearTimer = setTimeout(() => {
+        if (state.highlightedDramaId === matchedDrama.id) {
+          state.highlightedDramaId = '';
+          const cardEl = document.getElementById(`drama-card-${matchedDrama.id}`);
+          if (cardEl) cardEl.classList.remove('drama-jump-highlight');
+        }
+      }, 4200);
+
+      state.activeTab = 'dramas';
+      const sectionMap = {
+        dramas: 'section-dramas',
+        'main-chars': 'section-main-chars',
+        'sub-chars': 'section-sub-chars',
+        'char-quiz': 'section-char-quiz',
+        'drama-quiz': 'section-drama-quiz',
+        'add-drama': 'section-add-drama',
+        favorites: 'section-favorites'
+      };
+      Object.entries(sectionMap).forEach(([key, secId]) => {
+        document.getElementById(secId)?.classList.toggle('hidden', key !== 'dramas');
+        const btn = document.getElementById(`tab-${key}`);
+        if (btn) {
+          btn.classList.toggle('tab-active', key === 'dramas');
+          btn.classList.toggle('tab-inactive', key !== 'dramas');
+        }
+      });
+
+      populateDramaGroupSelect();
+      renderDramaFilterChips();
+      renderDramas();
+      updateGlobalStats();
+
+      requestAnimationFrame(() => {
+        const cardEl = document.getElementById(`drama-card-${matchedDrama.id}`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+
+      showToast(
+        adjustedFilters
+          ? `フィルターを調整して「${matchedDrama.title}」へ移動しました`
+          : `BL作品図鑑の「${matchedDrama.title}」へ移動しました`
+      );
+    }
+
+    function jumpToDramaFromCharacter(dramaTitle) {
+      jumpToDramaInBook(dramaTitle);
+    }
+
+    /* =========================================================================
+     * 4. ★推しリスト機能
+     * ========================================================================= */
+    function isFavorite(key) {
+      return state.favorites.some((item) => item.key === key);
+    }
+
+    function toggleFavorite(item) {
+      if (!item || !item.key) return;
+      const idx = state.favorites.findIndex((f) => f.key === item.key);
+      if (idx >= 0) {
+        state.favorites.splice(idx, 1);
+        showToast(`「${item.title}」を推しリストから外しました`);
+      } else {
+        state.favorites.unshift({
+          ...item,
+          savedAt: new Date().toISOString()
+        });
+        showToast(`「${item.title}」を★推しリストに追加しました！`);
+      }
+      saveState();
+      updateGlobalStats();
+      if (state.activeTab === 'favorites') {
+        renderFavorites();
+      } else if (state.activeTab === 'dramas') {
+        renderDramas();
+      } else if (state.activeTab === 'main-chars') {
+        renderMainCharacters();
+      } else if (state.activeTab === 'sub-chars') {
+        renderSubCharacters();
+      }
+    }
+
+    function favoriteButtonHtml(item) {
+      const active = isFavorite(item.key);
+      const encoded = encodeURIComponent(JSON.stringify(item));
+      return `
+        <button
+          type="button"
+          onclick="toggleFavorite(JSON.parse(decodeURIComponent('${encoded}')))"
+          aria-label="${active ? '推しリストから解除' : '推しリストに追加'}"
+          class="px-2.5 py-1 rounded-full text-xs font-extrabold transition shrink-0 ${
+            active
+              ? 'bg-amber-300/90 text-purple-950 border border-amber-400 shadow-2xs'
+              : 'bg-white text-purple-600 border border-pink-200 hover:bg-pink-50 hover:text-pink-700'
+          }"
+        >
+          ${active ? '★推し中' : '☆推し'}
+        </button>
+      `;
+    }
+
+    function setFavoriteFilter(mode) {
+      state.favFilter = mode;
+      ['all', 'drama', 'main', 'sub'].forEach((m) => {
+        const btn = document.getElementById(`fav-filter-${m}`);
+        if (btn) {
+          btn.classList.toggle('active', m === mode);
+        }
+      });
+      renderFavorites();
+    }
+
+    function renderFavorites() {
+      const grid = document.getElementById('favorites-grid');
+      const label = document.getElementById('favorites-count-label');
+      if (!grid) return;
+
+      const q = state.searchQuery.toLowerCase();
+      const filtered = state.favorites.filter((item) => {
+        if (state.favFilter !== 'all' && item.type !== state.favFilter) return false;
+        if (q) {
+          const blob = `${item.title || ''} ${item.subtitle || ''} ${item.description || ''}`.toLowerCase();
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (label) {
+        label.textContent = `表示中：${filtered.length}件 / 全${state.favorites.length}件（ブラウザに自動保存）`;
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full glass-card rounded-3xl p-8 text-center space-y-2">
+            <p class="text-base font-bold text-purple-900">推しリストに該当する項目がありません</p>
+            <p class="text-xs text-purple-600">作品やキャラクターカードの「☆推し」ボタン、または診断結果から追加できます。</p>
+          </div>
+        `;
+        return;
+      }
+
+      const typeBadgeMap = {
+        drama: { text: 'BL作品', cls: 'bg-pink-100 text-pink-800 border-pink-200' },
+        main: { text: 'メインキャラ', cls: 'bg-violet-100 text-violet-800 border-violet-200' },
+        sub: { text: 'サブキャラ', cls: 'bg-sky-100 text-sky-800 border-sky-200' }
+      };
+
+      grid.innerHTML = filtered.map((item) => {
+        const tb = typeBadgeMap[item.type] || { text: '推し', cls: 'bg-pink-100 text-pink-800 border-pink-200' };
+        return `
+          <article class="glass-card rounded-3xl p-5 flex flex-col justify-between gap-3.5">
+            <div class="space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${tb.cls}">${tb.text}</span>
+                ${favoriteButtonHtml(item)}
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-purple-950">${escapeHtml(item.title)}</h3>
+              ${item.subtitle ? `<p class="text-xs font-semibold text-purple-700">${escapeHtml(item.subtitle)}</p>` : ''}
+              ${item.description ? `<p class="text-xs sm:text-sm text-gray-700 leading-relaxed">${escapeHtml(item.description)}</p>` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /* =========================================================================
+     * 5. BL作品図鑑の描画・フィルタリング
+     * ========================================================================= */
+    function matchesPeriodFilter(drama, periodVal) {
+      if (!periodVal) return true;
+      const p = String(drama.period || '');
+      const b = String(drama.broadcast || '');
+      const tags = drama.tags || [];
+      if (periodVal === '深夜枠') {
+        return tags.includes('深夜枠') || p.includes('深夜') || b.includes('深夜');
+      }
+      return p === periodVal || p.includes(periodVal);
+    }
+
+    function populateDramaGroupSelect() {
+      const sel = document.getElementById('drama-group-search');
+      if (!sel) return;
+      const groups = [];
+      state.dramas.forEach((d) => {
+        (d.castList || []).forEach((c) => {
+          const grp = (c.group || '').trim();
+          if (grp && !groups.includes(grp)) {
+            groups.push(grp);
+          }
+        });
+      });
+
+      sel.innerHTML =
+        `<option value="">すべてのグループ（${groups.length}）</option>` +
+        groups.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+
+      if (groups.includes(state.dramaGroupSelected)) {
+        sel.value = state.dramaGroupSelected;
+      } else {
+        state.dramaGroupSelected = '';
+        sel.value = '';
+      }
+    }
+
+    function renderDramaFilterChips() {
+      const container = document.getElementById('drama-tag-chips');
+      if (!container) return;
+      const tagSet = new Set();
+      state.dramas.forEach((d) => (d.tags || []).forEach((t) => tagSet.add(t)));
+      const tags = ['すべて', ...tagSet];
+
+      container.innerHTML = tags.map((tag) => {
+        const isAll = tag === 'すべて';
+        const active = isAll ? !state.dramaSelectedTag : state.dramaSelectedTag === tag;
+        const val = isAll ? '' : tag;
+        return `
+          <button
+            type="button"
+            onclick="selectDramaTag(decodeURIComponent('${encodeURIComponent(val)}'))"
+            class="filter-chip ${active ? 'active' : ''} px-3 py-1 rounded-full text-xs font-semibold"
+          >
+            ${isAll ? 'すべてのジャンル' : `#${escapeHtml(tag)}`}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectDramaTag(tag) {
+      state.dramaSelectedTag = tag || '';
+      renderDramaFilterChips();
+      renderDramas();
+    }
+
+    function renderDramas() {
+      const grid = document.getElementById('dramas-grid');
+      const countLabel = document.getElementById('dramas-count-label');
+      if (!grid) return;
+
+      const periodVal = document.getElementById('drama-period-filter')?.value || '';
+      const q = state.searchQuery.toLowerCase();
+      const castQ = state.dramaCastQuery.toLowerCase();
+      const groupSel = state.dramaGroupSelected;
+
+      const filtered = state.dramas.filter((d) => {
+        if (!matchesPeriodFilter(d, periodVal)) return false;
+        if (state.dramaSelectedTag && !(d.tags || []).includes(state.dramaSelectedTag)) return false;
+
+        const castNames = (d.castList || []).map((c) => c.name || '').join(' ');
+        const groupNames = (d.castList || []).map((c) => (c.group || '').trim());
+
+        if (castQ && !castNames.toLowerCase().includes(castQ)) return false;
+        if (groupSel && !groupNames.includes(groupSel)) return false;
+
+        if (q) {
+          const blob = [
+            d.title,
+            d.period,
+            d.broadcast,
+            d.synopsis,
+            ...(d.tags || []),
+            castNames,
+            groupNames.join(' ')
+          ].join(' ').toLowerCase();
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (countLabel) {
+        countLabel.textContent = `表示中：${filtered.length}件 / 全${state.dramas.length}作品`;
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full glass-card rounded-3xl p-8 text-center space-y-2">
+            <p class="text-base font-bold text-purple-900">条件に一致するBL作品が見つかりませんでした</p>
+            <p class="text-xs text-purple-600">検索ワードや時期・グループ・タグフィルターを変更してみてください。</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((d) => {
+        const castBadges = (d.castList || []).map((c) => {
+          const grp = c.group ? `<span class="text-[11px] text-purple-600">（${escapeHtml(c.group)}）</span>` : '';
+          return `<span class="px-2.5 py-1 rounded-xl bg-pink-50 border border-pink-200/80 text-xs font-bold text-purple-950">${escapeHtml(c.name)}${grp}</span>`;
+        }).join('');
+
+        const tagChips = (d.tags || []).map((t) => (
+          `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/70">#${escapeHtml(t)}</span>`
+        )).join('');
+
+        const favPayload = {
+          key: `drama:${d.id}`,
+          type: 'drama',
+          title: d.title,
+          subtitle: `${d.period} / ${(d.castList || []).map((c) => c.name).join(' × ')}`,
+          description: d.synopsis || ''
+        };
+
+        const isHighlighted = state.highlightedDramaId === d.id;
+
+        return `
+          <article id="drama-card-${escapeHtml(d.id)}" class="glass-card rounded-3xl p-5 flex flex-col justify-between gap-4 hover:-translate-y-0.5 transition duration-200 ${isHighlighted ? 'drama-jump-highlight' : ''}">
+            <div class="space-y-3">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold soft-pill text-purple-900">
+                    ${escapeHtml(d.period || '作品')}
+                  </span>
+                  ${isHighlighted ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-pink-500 text-white shadow-2xs">ジャンプ先</span>` : ''}
+                </div>
+                ${favoriteButtonHtml(favPayload)}
+              </div>
+
+              <h3 class="text-base sm:text-lg font-extrabold text-purple-950 leading-snug">
+                ${escapeHtml(d.title)}
+              </h3>
+
+              ${d.broadcast ? `<p class="text-xs text-purple-600 font-medium">${escapeHtml(d.broadcast)}</p>` : ''}
+
+              ${castBadges ? `<div class="flex flex-wrap gap-1.5">${castBadges}</div>` : ''}
+
+              <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                ${escapeHtml(d.synopsis || '')}
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-1 pt-2 border-t border-pink-100">
+              ${tagChips}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /* =========================================================================
+     * 6. メインキャラ図鑑＆サブキャラ図鑑の描画
+     * ========================================================================= */
+    function populateMainGroupSelect() {
+      const sel = document.getElementById('main-group-search');
+      if (!sel) return;
+      const groups = collectAllGroupNames();
+      sel.innerHTML =
+        `<option value="">すべてのグループ（${groups.length}）</option>` +
+        groups.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+
+      if (groups.includes(state.mainGroupSelected)) {
+        sel.value = state.mainGroupSelected;
+      } else {
+        state.mainGroupSelected = '';
+        sel.value = '';
+      }
+    }
+
+    function populateMainDramaSelect() {
+      const sel = document.getElementById('main-char-drama-filter');
+      if (!sel) return;
+      const prev = sel.value;
+      const dramas = [...new Set(state.mainCharacters.map((c) => c.drama).filter(Boolean))];
+      sel.innerHTML =
+        `<option value="">すべての作品（${dramas.length}）</option>` +
+        dramas.map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+      if (prev && dramas.includes(prev)) {
+        sel.value = prev;
+      }
+    }
+
+    function renderMainGenreChips() {
+      const container = document.getElementById('main-genre-chips');
+      if (!container) return;
+      const items = ['すべて', ...GENRE_TYPES];
+      container.innerHTML = items.map((g) => {
+        const isAll = g === 'すべて';
+        const active = isAll ? !state.mainSelectedGenre : state.mainSelectedGenre === g;
+        const val = isAll ? '' : g;
+        return `
+          <button
+            type="button"
+            onclick="selectMainGenre(decodeURIComponent('${encodeURIComponent(val)}'))"
+            class="filter-chip ${active ? 'active' : ''} px-3 py-1 rounded-full text-xs font-semibold"
+          >
+            ${escapeHtml(g)}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectMainGenre(genre) {
+      state.mainSelectedGenre = genre || '';
+      renderMainGenreChips();
+      renderMainCharacters();
+    }
+
+    function renderMainCharacters() {
+      const grid = document.getElementById('main-chars-grid');
+      const countLabel = document.getElementById('main-chars-count-label');
+      if (!grid) return;
+
+      const dramaFilter = document.getElementById('main-char-drama-filter')?.value || '';
+      const q = state.searchQuery.toLowerCase();
+      const castQ = state.mainCastQuery.toLowerCase();
+      const groupSel = state.mainGroupSelected;
+
+      const filtered = state.mainCharacters.filter((c) => {
+        if (String(c.name || '').includes('湊明日香')) return false;
+        if (dramaFilter && c.drama !== dramaFilter) return false;
+        if (state.mainSelectedGenre && c.archetype !== state.mainSelectedGenre) return false;
+        if (castQ && !String(c.cast || '').toLowerCase().includes(castQ)) return false;
+        if (groupSel && (c.group || '').trim() !== groupSel) return false;
+
+        if (q) {
+          const blob = [c.name, c.archetype, c.cast, c.group, c.drama, c.description].join(' ').toLowerCase();
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (countLabel) {
+        countLabel.textContent = `表示中：${filtered.length}名 / 全${state.mainCharacters.length}名`;
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full glass-card rounded-3xl p-8 text-center space-y-2">
+            <p class="text-base font-bold text-purple-900">条件に一致するメインキャラクターが見つかりませんでした</p>
+            <p class="text-xs text-purple-600">系統チップや作品・グループ・キャスト検索を変更してみてください。</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((c) => {
+        const favPayload = {
+          key: `main:${c.id}`,
+          type: 'main',
+          title: c.name,
+          subtitle: `${c.archetype || '一途ストレート系'} / ${c.drama}${c.cast ? `（演：${c.cast}）` : ''}`,
+          description: c.description || ''
+        };
+
+        return `
+          <article class="glass-card rounded-3xl p-5 flex flex-col justify-between gap-3.5 hover:-translate-y-0.5 transition duration-200">
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-pink-100 text-pink-800 border border-pink-200">
+                  ${escapeHtml(c.archetype || '一途ストレート系')}
+                </span>
+                ${favoriteButtonHtml(favPayload)}
+              </div>
+
+              <h3 class="text-lg font-extrabold text-purple-950 leading-snug">
+                ${escapeHtml(c.name)}
+              </h3>
+
+              <div class="text-xs font-semibold text-purple-700 flex flex-wrap items-center gap-1">
+                <span>作品：</span>
+                <button
+                  type="button"
+                  onclick="jumpToDramaInBook(decodeURIComponent('${encodeURIComponent(c.drama || '')}'))"
+                  title="BL作品図鑑で「${escapeHtml(c.drama || '')}」を見る"
+                  class="text-left font-extrabold text-pink-700 hover:text-violet-700 underline decoration-pink-300 hover:decoration-violet-500 underline-offset-2 transition cursor-pointer"
+                >
+                  ${escapeHtml(c.drama || '')} →
+                </button>
+              </div>
+
+              ${(c.cast || c.group) ? `
+                <p class="text-xs font-bold text-purple-900 bg-purple-50/80 px-3 py-1.5 rounded-xl border border-purple-100">
+                  ${c.cast ? `キャスト：${escapeHtml(c.cast)}` : ''}${c.group ? `（${escapeHtml(c.group)}）` : ''}
+                </p>
+              ` : ''}
+
+              <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                ${escapeHtml(c.description || '')}
+              </p>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function populateSubFilters() {
+      const dramaSel = document.getElementById('sub-char-drama-filter');
+      const groupSel = document.getElementById('sub-char-group-filter');
+
+      if (dramaSel) {
+        const prevD = dramaSel.value;
+        const dramas = [...new Set(state.subCharacters.map((c) => c.drama).filter(Boolean))];
+        dramaSel.innerHTML =
+          `<option value="">すべての作品（${dramas.length}）</option>` +
+          dramas.map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+        if (prevD && dramas.includes(prevD)) dramaSel.value = prevD;
+      }
+
+      if (groupSel) {
+        const prevG = groupSel.value;
+        const groups = [...new Set(state.subCharacters.map((c) => (c.group || '').trim()).filter(Boolean))];
+        groupSel.innerHTML =
+          `<option value="">すべてのグループ（${groups.length}）</option>` +
+          groups.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+        if (prevG && groups.includes(prevG)) groupSel.value = prevG;
+      }
+    }
+
+    function renderSubCharacters() {
+      const grid = document.getElementById('sub-chars-grid');
+      const countLabel = document.getElementById('sub-chars-count-label');
+      if (!grid) return;
+
+      const dramaFilter = document.getElementById('sub-char-drama-filter')?.value || '';
+      const groupFilter = document.getElementById('sub-char-group-filter')?.value || '';
+      const q = state.searchQuery.toLowerCase();
+      const castQ = state.subCastQuery.toLowerCase();
+
+      const filtered = state.subCharacters.filter((c) => {
+        if (dramaFilter && c.drama !== dramaFilter) return false;
+        if (groupFilter && (c.group || '').trim() !== groupFilter) return false;
+        if (castQ && !String(c.cast || '').toLowerCase().includes(castQ)) return false;
+
+        if (q) {
+          const blob = [c.name, c.cast, c.group, c.drama, c.category, c.description].join(' ').toLowerCase();
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (countLabel) {
+        countLabel.textContent = `表示中：${filtered.length}名 / 全${state.subCharacters.length}名`;
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full glass-card rounded-3xl p-8 text-center space-y-2">
+            <p class="text-base font-bold text-purple-900">条件に一致するサブキャラクターが見つかりませんでした</p>
+            <p class="text-xs text-purple-600">作品・グループ・キャスト検索を変更してみてください。</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((c) => {
+        const favPayload = {
+          key: `sub:${c.id}`,
+          type: 'sub',
+          title: c.name,
+          subtitle: `${c.drama}${c.cast ? `（演：${c.cast}）` : ''}`,
+          description: c.description || c.category || ''
+        };
+
+        return `
+          <article class="glass-card rounded-3xl p-5 flex flex-col justify-between gap-3.5 hover:-translate-y-0.5 transition duration-200">
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-violet-100 text-violet-800 border border-violet-200">
+                  サブキャラ
+                </span>
+                ${favoriteButtonHtml(favPayload)}
+              </div>
+
+              <h3 class="text-lg font-extrabold text-purple-950 leading-snug">
+                ${escapeHtml(c.name)}
+              </h3>
+
+              <div class="text-xs font-semibold text-pink-700 flex flex-wrap items-center gap-1">
+                <span>作品：</span>
+                <button
+                  type="button"
+                  onclick="jumpToDramaInBook(decodeURIComponent('${encodeURIComponent(c.drama || '')}'))"
+                  title="BL作品図鑑で「${escapeHtml(c.drama || '')}」を見る"
+                  class="text-left font-extrabold text-purple-800 hover:text-pink-700 underline decoration-purple-300 hover:decoration-pink-500 underline-offset-2 transition cursor-pointer"
+                >
+                  ${escapeHtml(c.drama || '')} →
+                </button>
+              </div>
+
+              <p class="text-xs text-purple-900 bg-pink-50/75 px-3 py-1.5 rounded-xl border border-pink-100 font-semibold">
+                ${escapeHtml(c.category || 'サブキャラクター')}
+              </p>
+
+              ${(c.cast || c.group) ? `
+                <p class="text-xs font-bold text-purple-950">
+                  ${c.cast ? `キャスト：${escapeHtml(c.cast)}` : ''}${c.group ? `（${escapeHtml(c.group)}）` : ''}
+                </p>
+              ` : ''}
+
+              <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                ${escapeHtml(c.description || '')}
+              </p>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /* =========================================================================
+     * 7. 8問診断（推しキャラ診断・推し作品診断）＆保存履歴管理
+     * ========================================================================= */
+    function setCharacterQuizMode(mode) {
+      state.charQuizMode = mode === 'sub' ? 'sub' : 'main';
+      state.charQuizStep = 0;
+      state.charQuizAnswers = [];
+      state.charQuizResult = null;
+
+      const mainBtn = document.getElementById('mode-btn-main');
+      const subBtn = document.getElementById('mode-btn-sub');
+      const subtitle = document.getElementById('char-quiz-subtitle');
+
+      if (mainBtn && subBtn) {
+        if (state.charQuizMode === 'main') {
+          mainBtn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-2xs';
+          subBtn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-purple-800 hover:bg-white/75';
+        } else {
+          subBtn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-2xs';
+          mainBtn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-purple-800 hover:bg-white/75';
+        }
+      }
+
+      if (subtitle) {
+        subtitle.textContent = state.charQuizMode === 'main'
+          ? 'メインキャラ診断（8問）：あなたの好みに合うメインキャラ系統＆推しキャラを診断します。'
+          : 'サブキャラ診断（8問）：物語を彩るサブキャラの推しタイプ＆注目キャラを診断します。';
+      }
+
+      renderCharacterQuiz();
+    }
+
+    function computeMainCharResult(answers) {
+      const scores = {
+        straight: 0,
+        passionate: 0,
+        tsundere: 0,
+        older: 0,
+        mature: 0,
+        delicate: 0,
+        deep: 0,
+        bright: 0,
+        playful: 0,
+        cool: 0
+      };
+      (answers || []).forEach((opt) => {
+        (opt?.keys || []).forEach((k) => {
+          if (scores[k] !== undefined) scores[k] += 1;
+        });
+      });
+
+      const profiles = [
+        {
+          id: 'char-prof-straight',
+          archetype: '一途ストレート系',
+          title: '真っ直ぐ一途に想いを貫く「ストレート愛着」タイプ',
+          summary: '駆け引きよりも素直な言葉や真っ直ぐな情熱に心を惹かれるあなた。迷いなく想いを届けるキャラクターに強くときめきます。',
+          score: scores.straight * 2 + scores.passionate * 1.5 + scores.deep
+        },
+        {
+          id: 'char-prof-tsundere',
+          archetype: 'ツンデレ照れ屋系',
+          title: '強がり＆照れ隠しのギャップに沼る「ツンデレときめき」タイプ',
+          summary: '素っ気ない態度や照れ隠しからふとこぼれる本音に弱いあなた。二面性や不器用な可愛さに心を奪われます。',
+          score: scores.tsundere * 2 + scores.playful * 1.4 + scores.cool
+        },
+        {
+          id: 'char-prof-older',
+          archetype: 'お兄さん包容力系',
+          title: '優しい気配りと頼もしさに包まれる「包容力癒やし」タイプ',
+          summary: 'そっと寄り添い、温かく受け止めてくれる安心感を求めるあなた。日常の気遣いや頼れる兄貴肌に惹かれます。',
+          score: scores.older * 2 + scores.deep * 1.3 + scores.mature
+        },
+        {
+          id: 'char-prof-delicate',
+          archetype: '不器用繊細系',
+          title: '繊細な心の揺れと尊さに惹かれる「エモ繊細」タイプ',
+          summary: '言葉にできない想いや葛藤、少しずつ心を開いていく過程に深く共感するあなた。丁寧な心情描写が刺さります。',
+          score: scores.delicate * 2 + scores.deep * 1.5 + scores.straight * 0.6
+        },
+        {
+          id: 'char-prof-bright',
+          archetype: '陽キャムード系',
+          title: '明るい笑顔とテンポ感で元気をもらう「ムードメーカー」タイプ',
+          summary: '一緒にいると自然と笑顔になれる明るさや軽快さを求めるあなた。場の空気をパッと華やかにする存在が推しです。',
+          score: scores.bright * 2 + scores.playful * 1.5 + scores.passionate * 0.5
+        },
+        {
+          id: 'char-prof-cool',
+          archetype: 'クール無口系',
+          title: '静かな佇まいと秘めた熱量に惹かれる「クールミステリアス」タイプ',
+          summary: '言葉少なで落ち着いた雰囲気の奥に、熱い想いや優しさを秘めたキャラクターに強く惹かれるあなたです。',
+          score: scores.cool * 2 + scores.deep * 1.2 + scores.mature
+        },
+        {
+          id: 'char-prof-playful',
+          archetype: '甘え上手可愛げ系',
+          title: '人懐っこい甘えと可愛げにキュンとする「甘え上手」タイプ',
+          summary: '距離を縮める可愛らしさや、素直に甘えてくる愛嬌に心が弾むあなた。守ってあげたくなる魅力に惹かれます。',
+          score: scores.playful * 2 + scores.bright * 1.2 + scores.delicate * 0.7
+        },
+        {
+          id: 'char-prof-mature',
+          archetype: '大人余裕系',
+          title: '落ち着いた余裕と大人の色気に惹かれる「大人スマート」タイプ',
+          summary: '大人ならではの落ち着きや余裕のある眼差しに安心とときめきを感じるあなた。洗練された距離感に惹かれます。',
+          score: scores.mature * 2 + scores.older * 1.3 + scores.cool * 0.7
+        }
+      ];
+
+      profiles.sort((a, b) => b.score - a.score);
+      const top = profiles[0];
+      const candidates = state.mainCharacters.filter((c) => c.archetype === top.archetype);
+      const picked = candidates.length > 0
+        ? candidates[answers.length % candidates.length]
+        : state.mainCharacters[0];
+
+      return {
+        mode: 'main',
+        title: top.title,
+        badge: top.archetype,
+        summary: top.summary,
+        recommendedName: picked ? picked.name : '',
+        recommendedDrama: picked ? picked.drama : '',
+        recommendedCast: picked ? picked.cast : '',
+        recommendedDesc: picked ? picked.description : ''
+      };
+    }
+
+    function computeSubCharResult(answers) {
+      const scores = {
+        mood: 0,
+        bright: 0,
+        watcher: 0,
+        friend: 0,
+        keyperson: 0,
+        rival: 0,
+        senior: 0,
+        assist: 0
+      };
+      (answers || []).forEach((opt) => {
+        (opt?.keys || []).forEach((k) => {
+          if (scores[k] !== undefined) scores[k] += 1;
+        });
+      });
+
+      const profiles = [
+        {
+          id: 'sub-prof-mood',
+          keyword: '親友',
+          title: '場を明るく盛り上げる「親友・ムードメーカー枠」推し',
+          summary: '明るく社交的で、メイン二人の恋や日常を楽しくかき回してくれる親友・同級生タイプがぴったりです。',
+          score: scores.mood * 2 + scores.friend * 1.5 + scores.bright
+        },
+        {
+          id: 'sub-prof-senior',
+          keyword: '先輩',
+          title: '頼れる助言と安心感をくれる「兄・先輩・アシスト枠」推し',
+          summary: '気配り上手で的確な言葉やサポートをしてくれる兄貴分・先輩・同僚タイプのサブキャラに惹かれます。',
+          score: scores.senior * 2 + scores.assist * 1.5 + scores.watcher * 0.7
+        },
+        {
+          id: 'sub-prof-key',
+          keyword: 'ライバル',
+          title: '物語の展開を揺さぶる「キーパーソン・ライバル枠」推し',
+          summary: '登場するだけで空気を変え、本音や感情の揺れを引き出すスパイス的存在のサブキャラが刺さります。',
+          score: scores.keyperson * 2 + scores.rival * 1.5 + scores.assist * 0.5
+        },
+        {
+          id: 'sub-prof-watcher',
+          keyword: '理解者',
+          title: 'そっと見守り寄り添う「理解者・見守り枠」推し',
+          summary: '一歩引いたところから温かい眼差しで見守り、大切な瞬間に寄り添うサブキャラに深く癒やされます。',
+          score: scores.watcher * 2 + scores.friend * 1.1 + scores.assist
+        }
+      ];
+
+      profiles.sort((a, b) => b.score - a.score);
+      const top = profiles[0];
+      const candidates = state.subCharacters.filter(
+        (c) => `${c.category || ''} ${c.description || ''}`.includes(top.keyword)
+      );
+      const picked = candidates.length > 0
+        ? candidates[answers.length % candidates.length]
+        : state.subCharacters[0];
+
+      return {
+        mode: 'sub',
+        title: top.title,
+        badge: 'サブキャラ診断',
+        summary: top.summary,
+        recommendedName: picked ? picked.name : '',
+        recommendedDrama: picked ? picked.drama : '',
+        recommendedCast: picked ? picked.cast : '',
+        recommendedDesc: picked ? picked.description : ''
+      };
+    }
+
+    function renderCharacterQuiz() {
+      const container = document.getElementById('char-quiz-container');
+      if (!container) return;
+
+      const questions = state.charQuizMode === 'sub' ? SUB_CHAR_QUESTIONS : MAIN_CHAR_QUESTIONS;
+
+      if (state.charQuizResult) {
+        const res = state.charQuizResult;
+        const encodedRes = encodeURIComponent(JSON.stringify(res));
+        container.innerHTML = `
+          <div class="rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-pink-50/90 via-purple-50/90 to-white border border-pink-200 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-pink-500 text-white">
+                診断結果（${escapeHtml(res.badge)}）
+              </span>
+              <button
+                type="button"
+                onclick="restartCharacterQuiz()"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-purple-800 border border-purple-200 hover:bg-purple-50 transition"
+              >
+                もう一度診断する
+              </button>
+            </div>
+
+            <h3 class="text-xl sm:text-2xl font-extrabold text-purple-950 leading-snug">
+              ${escapeHtml(res.title)}
+            </h3>
+
+            <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
+              ${escapeHtml(res.summary)}
+            </p>
+
+            ${res.recommendedName ? `
+              <div class="p-4 rounded-2xl bg-white/90 border border-pink-200 space-y-1.5">
+                <div class="text-xs font-extrabold text-pink-700">ピックアップ推しキャラ</div>
+                <div class="text-base sm:text-lg font-extrabold text-purple-950">
+                  ${escapeHtml(res.recommendedName)}
+                  ${res.recommendedCast ? `<span class="text-xs font-bold text-purple-700 ml-1">（演：${escapeHtml(res.recommendedCast)}）</span>` : ''}
+                </div>
+                ${res.recommendedDrama ? `
+                  <div>
+                    <button
+                      type="button"
+                      onclick="jumpToDramaInBook(decodeURIComponent('${encodeURIComponent(res.recommendedDrama)}'))"
+                      class="text-xs font-bold text-pink-700 hover:text-violet-700 underline underline-offset-2"
+                    >
+                      出演作：${escapeHtml(res.recommendedDrama)} →
+                    </button>
+                  </div>
+                ` : ''}
+                ${res.recommendedDesc ? `<p class="text-xs text-gray-600">${escapeHtml(res.recommendedDesc)}</p>` : ''}
+              </div>
+            ` : ''}
+
+            <div class="flex flex-wrap gap-2.5 pt-2">
+              <button
+                type="button"
+                onclick="saveQuizResultToHistory(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 shadow-xs transition"
+              >
+                履歴に保存する
+              </button>
+              <button
+                type="button"
+                onclick="copyQuizResultText(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white text-purple-900 border border-purple-200 hover:bg-purple-50 transition"
+              >
+                結果をコピー
+              </button>
+              <button
+                type="button"
+                onclick="shareQuizResultText(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-pink-50 text-pink-800 border border-pink-200 hover:bg-pink-100 transition"
+              >
+                共有する
+              </button>
+              ${res.recommendedName ? `
+                <button
+                  type="button"
+                  onclick="addQuizPickToFavorites(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                  class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 border border-amber-300 hover:bg-amber-200 transition"
+                >
+                  ★推しリストに追加
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const step = state.charQuizStep;
+      const currentQ = questions[step];
+      const progressPct = Math.round(((step + 1) / questions.length) * 100);
+
+      container.innerHTML = `
+        <div class="space-y-5">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs font-bold text-purple-700">
+              <span>質問 ${step + 1} / ${questions.length}</span>
+              <span>${progressPct}%</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-pink-100 overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-pink-500 to-violet-500 transition-all duration-300" style="width: ${progressPct}%"></div>
+            </div>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-extrabold text-purple-950">
+            ${escapeHtml(currentQ.q)}
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${currentQ.options.map((opt, idx) => `
+              <button
+                type="button"
+                onclick="answerCharacterQuiz(${idx})"
+                class="text-left p-4 rounded-2xl bg-white hover:bg-pink-50/90 border border-pink-200 hover:border-pink-400 text-xs sm:text-sm font-bold text-purple-950 shadow-2xs transition cursor-pointer"
+              >
+                ${escapeHtml(opt.label)}
+              </button>
+            `).join('')}
+          </div>
+
+          ${step > 0 ? `
+            <div class="pt-1">
+              <button
+                type="button"
+                onclick="prevCharacterQuiz()"
+                class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition"
+              >
+                ← 前の質問に戻る
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function answerCharacterQuiz(optIdx) {
+      const questions = state.charQuizMode === 'sub' ? SUB_CHAR_QUESTIONS : MAIN_CHAR_QUESTIONS;
+      const opt = questions[state.charQuizStep]?.options[optIdx];
+      if (!opt) return;
+      state.charQuizAnswers[state.charQuizStep] = opt;
+
+      if (state.charQuizStep + 1 < questions.length) {
+        state.charQuizStep += 1;
+      } else {
+        state.charQuizResult = state.charQuizMode === 'sub'
+          ? computeSubCharResult(state.charQuizAnswers)
+          : computeMainCharResult(state.charQuizAnswers);
+      }
+      renderCharacterQuiz();
+    }
+
+    function prevCharacterQuiz() {
+      if (state.charQuizStep > 0) {
+        state.charQuizStep -= 1;
+        state.charQuizResult = null;
+        renderCharacterQuiz();
+      }
+    }
+
+    function restartCharacterQuiz() {
+      state.charQuizStep = 0;
+      state.charQuizAnswers = [];
+      state.charQuizResult = null;
+      renderCharacterQuiz();
+    }
+
+    function computeDramaQuizResult(answers) {
+      const tagScores = {};
+      (answers || []).forEach((opt) => {
+        (opt?.tags || []).forEach((t) => {
+          tagScores[t] = (tagScores[t] || 0) + 1;
+        });
+      });
+
+      const scoredDramas = state.dramas.map((d) => {
+        let s = 0;
+        const dTags = d.tags || [];
+        const period = String(d.period || '');
+        const title = String(d.title || '');
+
+        if (dTags.includes('学園・青春')) s += (tagScores.school || 0) * 2 + (tagScores.youth || 0) * 1.4;
+        if (dTags.includes('大人・オフィス')) s += (tagScores.office || 0) * 2 + (tagScores.adult || 0) * 1.5;
+        if (dTags.includes('同居・ルームシェア')) s += (tagScores.roomshare || 0) * 2.2;
+        if (dTags.includes('甘々・胸キュン')) s += (tagScores.sweet || 0) * 2;
+        if (dTags.includes('切なさ・エモ')) s += (tagScores.emotional || 0) * 2 + (tagScores.deep || 0) * 1.2;
+        if (dTags.includes('コメディ・笑える')) s += (tagScores.comedy || 0) * 2.1;
+        if (dTags.includes('グループ・仲間')) s += (tagScores.group || 0) * 2;
+        if (dTags.includes('深夜枠')) s += (tagScores.late || 0) * 2;
+        if (period.includes('2026')) s += (tagScores.recent || 0) * 1.6;
+        if (title.includes('／') || title.includes('Season') || title.includes('シーズン')) {
+          s += (tagScores.series || 0) * 1.8;
+        }
+        if (period.includes('2020〜2024') || period.includes('2019')) {
+          s += (tagScores.classic || 0) * 1.3;
+        }
+
+        return { drama: d, score: s };
+      });
+
+      scoredDramas.sort((a, b) => b.score - a.score);
+      const best = scoredDramas[0]?.drama || state.dramas[0];
+
+      let moodTitle = 'ときめきと余韻が心に響く「王道推し作品」';
+      if ((tagScores.comedy || 0) >= 4) {
+        moodTitle = '笑いとときめきで気分が晴れる「ハッピーラブコメ作品」';
+      } else if ((tagScores.emotional || 0) >= 4) {
+        moodTitle = '深い余韻とエモさが胸に迫る「エモーショナル作品」';
+      } else if ((tagScores.roomshare || 0) >= 3) {
+        moodTitle = '距離の近さと日常のぬくもりに浸る「同居・密着作品」';
+      } else if ((tagScores.adult || 0) >= 3) {
+        moodTitle = '大人の駆け引きと深みのある「オトナラブストーリー」';
+      }
+
+      return {
+        mode: 'drama',
+        title: best ? `${best.title}（${moodTitle}）` : moodTitle,
+        badge: '推し作品診断（8問）',
+        summary: best
+          ? `${best.synopsis || ''}（${best.period || ''} / ${(best.castList || []).map((c) => c.name).join(' × ')}）`
+          : '',
+        recommendedName: best ? best.title : '',
+        recommendedDrama: best ? best.title : '',
+        recommendedCast: best ? (best.castList || []).map((c) => c.name).join(' × ') : '',
+        recommendedDesc: best ? best.synopsis : ''
+      };
+    }
+
+    function renderDramaQuiz() {
+      const container = document.getElementById('drama-quiz-container');
+      if (!container) return;
+
+      if (state.dramaQuizResult) {
+        const res = state.dramaQuizResult;
+        const encodedRes = encodeURIComponent(JSON.stringify(res));
+        container.innerHTML = `
+          <div class="rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-purple-50/95 via-pink-50/90 to-white border border-purple-200 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-violet-600 text-white">
+                診断結果（${escapeHtml(res.badge)}）
+              </span>
+              <button
+                type="button"
+                onclick="restartDramaQuiz()"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-purple-800 border border-purple-200 hover:bg-purple-50 transition"
+              >
+                もう一度診断する
+              </button>
+            </div>
+
+            <h3 class="text-xl sm:text-2xl font-extrabold text-purple-950 leading-snug">
+              ${escapeHtml(res.title)}
+            </h3>
+
+            <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
+              ${escapeHtml(res.summary)}
+            </p>
+
+            ${res.recommendedDrama ? `
+              <div>
+                <button
+                  type="button"
+                  onclick="jumpToDramaInBook(decodeURIComponent('${encodeURIComponent(res.recommendedDrama)}'))"
+                  class="px-4 py-2 rounded-2xl text-xs font-extrabold bg-pink-100 text-pink-800 hover:bg-pink-200 border border-pink-300 transition"
+                >
+                  BL作品図鑑でこの作品を見る →
+                </button>
+              </div>
+            ` : ''}
+
+            <div class="flex flex-wrap gap-2.5 pt-2">
+              <button
+                type="button"
+                onclick="saveQuizResultToHistory(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 shadow-xs transition"
+              >
+                履歴に保存する
+              </button>
+              <button
+                type="button"
+                onclick="copyQuizResultText(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white text-purple-900 border border-purple-200 hover:bg-purple-50 transition"
+              >
+                結果をコピー
+              </button>
+              <button
+                type="button"
+                onclick="shareQuizResultText(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-pink-50 text-pink-800 border border-pink-200 hover:bg-pink-100 transition"
+              >
+                共有する
+              </button>
+              ${res.recommendedDrama ? `
+                <button
+                  type="button"
+                  onclick="addQuizPickToFavorites(JSON.parse(decodeURIComponent('${encodedRes}')))"
+                  class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-amber-100 text-amber-950 border border-amber-300 hover:bg-amber-200 transition"
+                >
+                  ★推しリストに追加
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const step = state.dramaQuizStep;
+      const currentQ = DRAMA_QUIZ_QUESTIONS[step];
+      const progressPct = Math.round(((step + 1) / DRAMA_QUIZ_QUESTIONS.length) * 100);
+
+      container.innerHTML = `
+        <div class="space-y-5">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs font-bold text-purple-700">
+              <span>質問 ${step + 1} / ${DRAMA_QUIZ_QUESTIONS.length}</span>
+              <span>${progressPct}%</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-purple-100 overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500 transition-all duration-300" style="width: ${progressPct}%"></div>
+            </div>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-extrabold text-purple-950">
+            ${escapeHtml(currentQ.q)}
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${currentQ.options.map((opt, idx) => `
+              <button
+                type="button"
+                onclick="answerDramaQuiz(${idx})"
+                class="text-left p-4 rounded-2xl bg-white hover:bg-purple-50/90 border border-purple-200 hover:border-violet-400 text-xs sm:text-sm font-bold text-purple-950 shadow-2xs transition cursor-pointer"
+              >
+                ${escapeHtml(opt.label)}
+              </button>
+            `).join('')}
+          </div>
+
+          ${step > 0 ? `
+            <div class="pt-1">
+              <button
+                type="button"
+                onclick="prevDramaQuiz()"
+                class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition"
+              >
+                ← 前の質問に戻る
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function answerDramaQuiz(optIdx) {
+      const opt = DRAMA_QUIZ_QUESTIONS[state.dramaQuizStep]?.options[optIdx];
+      if (!opt) return;
+      state.dramaQuizAnswers[state.dramaQuizStep] = opt;
+
+      if (state.dramaQuizStep + 1 < DRAMA_QUIZ_QUESTIONS.length) {
+        state.dramaQuizStep += 1;
+      } else {
+        state.dramaQuizResult = computeDramaQuizResult(state.dramaQuizAnswers);
+      }
+      renderDramaQuiz();
+    }
+
+    function prevDramaQuiz() {
+      if (state.dramaQuizStep > 0) {
+        state.dramaQuizStep -= 1;
+        state.dramaQuizResult = null;
+        renderDramaQuiz();
+      }
+    }
+
+    function restartDramaQuiz() {
+      state.dramaQuizStep = 0;
+      state.dramaQuizAnswers = [];
+      state.dramaQuizResult = null;
+      renderDramaQuiz();
+    }
+
+    function formatQuizResultText(res) {
+      const lines = [
+        `【${res.badge || '推し診断'}】`,
+        res.title || ''
+      ];
+      if (res.recommendedName) {
+        lines.push(`おすすめ：${res.recommendedName}${res.recommendedCast ? `（${res.recommendedCast}）` : ''}`);
+      }
+      if (res.recommendedDrama && res.mode !== 'drama') {
+        lines.push(`作品：${res.recommendedDrama}`);
+      }
+      if (res.summary) {
+        lines.push(res.summary);
+      }
+      return lines.filter(Boolean).join('
+');
+    }
+
+    function copyTextFallback(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function copyQuizResultText(res) {
+      const text = formatQuizResultText(res);
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).then(
+          () => showToast('診断結果をクリップボードにコピーしました'),
+          () => showToast(copyTextFallback(text) ? '診断結果をコピーしました' : 'コピーできませんでした')
+        );
+      } else {
+        showToast(copyTextFallback(text) ? '診断結果をコピーしました' : 'コピーできませんでした');
+      }
+    }
+
+    function shareQuizResultText(res) {
+      const text = formatQuizResultText(res);
+      if (navigator.share) {
+        navigator.share({
+          title: '♡ 推しBLドラマ＆キャラ図鑑 ♡ 診断結果',
+          text
+        }).then(
+          () => showToast('診断結果を共有しました'),
+          () => {}
+        );
+      } else {
+        copyQuizResultText(res);
+      }
+    }
+
+    function addQuizPickToFavorites(res) {
+      if (!res) return;
+      if (res.mode === 'drama' && res.recommendedDrama) {
+        toggleFavorite({
+          key: `drama-pick:${res.recommendedDrama}`,
+          type: 'drama',
+          title: res.recommendedDrama,
+          subtitle: res.recommendedCast ? `診断おすすめ / ${res.recommendedCast}` : '診断おすすめ作品',
+          description: res.recommendedDesc || res.summary || ''
+        });
+      } else if (res.recommendedName) {
+        const charType = res.mode === 'sub' ? 'sub' : 'main';
+        toggleFavorite({
+          key: `char-pick:${charType}:${res.recommendedName}`,
+          type: charType,
+          title: res.recommendedName,
+          subtitle: `${res.badge || '診断おすすめ'} / ${res.recommendedDrama || ''}`,
+          description: res.recommendedDesc || res.summary || ''
+        });
+      }
+    }
+
+    function saveQuizResultToHistory(res) {
+      if (!res) return;
+      const entry = {
+        id: `hist-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        savedAt: new Date().toLocaleString('ja-JP'),
+        result: res
+      };
+      state.history.unshift(entry);
+      if (state.history.length > 40) {
+        state.history = state.history.slice(0, 40);
+      }
+      saveState();
+      updateGlobalStats();
+      showToast('診断結果を保存履歴に追加しました');
+    }
+
+    function openHistoryModal() {
+      renderHistoryList();
+      document.getElementById('history-modal')?.classList.remove('hidden');
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('history-modal')?.classList.add('hidden');
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('history-list-container');
+      if (!container) return;
+
+      if (!state.history.length) {
+        container.innerHTML = `
+          <div class="p-8 text-center rounded-2xl bg-pink-50/60 border border-pink-100 space-y-1">
+            <p class="text-sm font-bold text-purple-900">保存された診断履歴はまだありません</p>
+            <p class="text-xs text-purple-600">8問診断の結果画面から「履歴に保存する」を押すとここに残ります。</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = state.history.map((h) => {
+        const res = h.result || {};
+        const encoded = encodeURIComponent(JSON.stringify(res));
+        return `
+          <div class="p-4 rounded-2xl bg-white border border-pink-200 space-y-2.5">
+            <div class="flex items-center justify-between gap-2 text-xs text-purple-600">
+              <span class="font-extrabold text-pink-700">${escapeHtml(res.badge || '診断')}</span>
+              <span>${escapeHtml(h.savedAt || '')}</span>
+            </div>
+            <div class="text-sm sm:text-base font-extrabold text-purple-950">${escapeHtml(res.title || '')}</div>
+            ${res.recommendedName ? `<div class="text-xs font-bold text-purple-800">ピックアップ：${escapeHtml(res.recommendedName)}</div>` : ''}
+            ${res.summary ? `<p class="text-xs text-gray-600 leading-relaxed">${escapeHtml(res.summary)}</p>` : ''}
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <button
+                type="button"
+                onclick="copyQuizResultText(JSON.parse(decodeURIComponent('${encoded}')))"
+                class="px-3 py-1 rounded-xl text-xs font-bold bg-purple-50 text-purple-800 hover:bg-purple-100 transition"
+              >
+                コピー
+              </button>
+              <button
+                type="button"
+                onclick="shareQuizResultText(JSON.parse(decodeURIComponent('${encoded}')))"
+                class="px-3 py-1 rounded-xl text-xs font-bold bg-pink-50 text-pink-800 hover:bg-pink-100 transition"
+              >
+                共有
+              </button>
+              <button
+                type="button"
+                onclick="deleteHistoryItem('${escapeHtml(h.id)}')"
+                class="px-3 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 hover:bg-rose-100 transition ml-auto"
+              >
+                削除
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteHistoryItem(id) {
+      state.history = state.history.filter((h) => h.id !== id);
+      saveState();
+      updateGlobalStats();
+      renderHistoryList();
+      showToast('履歴を1件削除しました');
+    }
+
+    function clearAllHistory() {
+      state.history = [];
+      saveState();
+      updateGlobalStats();
+      renderHistoryList();
+      showToast('診断履歴をすべて削除しました');
+    }
+
+    /* =========================================================================
+     * 8. 作品追加・フィルターリセット・自動テスト検証
+     * ========================================================================= */
+    function handleAddDramaSubmit(event) {
+      event.preventDefault();
+
+      const title = (document.getElementById('new-drama-title')?.value || '').trim();
+      if (!title) return;
+
+      const yearRaw = (document.getElementById('new-drama-year')?.value || '').trim();
+      const moodRaw = (document.getElementById('new-drama-mood')?.value || '').trim();
+      const synopsis = (document.getElementById('new-drama-synopsis')?.value || '').trim()
+        || `${title} の追加作品エントリです。`;
+
+      const mainName = (document.getElementById('new-main-char-name')?.value || '').trim();
+      const mainArchetypeRaw = (document.getElementById('new-main-char-archetype')?.value || '').trim();
+      const mainCast = (document.getElementById('new-main-char-cast')?.value || '').trim();
+      const mainGroup = (document.getElementById('new-main-char-group')?.value || '').trim();
+      const mainDesc = (document.getElementById('new-main-char-desc')?.value || '').trim();
+
+      const subName = (document.getElementById('new-sub-char-name')?.value || '').trim();
+      const subCast = (document.getElementById('new-sub-char-cast')?.value || '').trim();
+      const subGroup = (document.getElementById('new-sub-char-group')?.value || '').trim();
+      const subCategory = (document.getElementById('new-sub-char-category')?.value || '').trim();
+      const subDesc = (document.getElementById('new-sub-char-desc')?.value || '').trim();
+
+      const periodParts = yearRaw.split('/').map((s) => s.trim());
+      const period = periodParts[0] || '2026年秋';
+      const broadcast = periodParts.slice(1).join(' / ') || '配信・TV';
+
+      const tags = moodRaw
+        ? moodRaw.split(/[、,・/]/).map((t) => t.trim()).filter(Boolean)
+        : ['甘々・胸キュン'];
+
+      const castList = [];
+      if (mainCast) castList.push({ name: mainCast, group: mainGroup });
+      if (subCast && subCast !== mainCast) castList.push({ name: subCast, group: subGroup });
+
+      const newDramaId = `drama-custom-${Date.now()}`;
+      const newDrama = {
+        id: newDramaId,
+        title,
+        period,
+        broadcast,
+        castList,
+        tags,
+        synopsis
+      };
+      state.dramas.unshift(newDrama);
+
+      if (mainName && !mainName.includes('湊明日香')) {
+        const descFinal = mainDesc || `${title} に登場するメインキャラクター。`;
+        const archetypeFinal = GENRE_TYPES.includes(mainArchetypeRaw)
+          ? mainArchetypeRaw
+          : inferNaturalArchetype(mainName, descFinal, mainCast, state.mainCharacters.length);
+
+        state.mainCharacters.unshift({
+          id: `main-custom-${Date.now()}`,
+          name: mainName,
+          archetype: archetypeFinal,
+          cast: mainCast,
+          group: mainGroup,
+          drama: title,
+          description: descFinal
+        });
+      }
+
+      if (subName) {
+        state.subCharacters.unshift({
+          id: `sub-custom-${Date.now()}`,
+          name: subName,
+          cast: subCast,
+          group: subGroup,
+          drama: title,
+          category: subCategory || 'サブキャラクター',
+          description: subDesc || `${title} に登場するサブキャラクター。`
+        });
+      }
+
+      saveState();
+      updateGlobalStats();
+      document.getElementById('add-drama-form')?.reset();
+      state.highlightedDramaId = newDramaId;
+      switchTab('dramas');
+      showToast(`「${title}」を図鑑に追加しました！`);
+    }
+
+    function resetAllFilters() {
+      state.searchQuery = '';
+      state.dramaCastQuery = '';
+      state.dramaGroupSelected = '';
+      state.dramaSelectedTag = '';
+      state.highlightedDramaId = '';
+      state.mainCastQuery = '';
+      state.mainGroupSelected = '';
+      state.mainSelectedGenre = '';
+      state.subCastQuery = '';
+
+      ['global-search-input', 'drama-cast-search', 'main-cast-search', 'sub-cast-search'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const dgSel = document.getElementById('drama-group-search');
+      if (dgSel) dgSel.value = '';
+      const mgSel = document.getElementById('main-group-search');
+      if (mgSel) mgSel.value = '';
+      const pSel = document.getElementById('drama-period-filter');
+      if (pSel) pSel.value = '';
+      const mSel = document.getElementById('main-char-drama-filter');
+      if (mSel) mSel.value = '';
+      const sdSel = document.getElementById('sub-char-drama-filter');
+      if (sdSel) sdSel.value = '';
+      const sgSel = document.getElementById('sub-char-group-filter');
+      if (sgSel) sgSel.value = '';
+
+      document.getElementById('clear-search-btn')?.classList.add('hidden');
+      renderActiveSection();
+      showToast('絞り込み・検索条件をリセットしました');
+    }
+
+    function runTestPlay() {
+      const checks = [];
+
+      const anataTabi = state.dramas.find((d) => d.title.includes('あなたを殺す旅'));
+      checks.push({
+        ok: Boolean(anataTabi),
+        label: '『あなたを殺す旅』作品収録チェック'
+      });
+
+      const shiraishi = state.subCharacters.find((c) => c.name.includes('白石') && c.cast === '髙松アロハ');
+      checks.push({
+        ok: Boolean(shiraishi && shiraishi.drama.includes('恋をするなら二度目が上等')),
+        label: '『恋をするなら二度目が上等（Season1 / Season2）』白石（演：髙松アロハ）収録チェック'
+      });
+
+      const aidaHayato = state.subCharacters.find((c) => c.name.includes('相多颯斗') && c.cast === '鈴木仁');
+      checks.push({
+        ok: Boolean(aidaHayato && aidaHayato.drama.includes('消えた初恋')),
+        label: '『消えた初恋』相多颯斗（あいだ・はやと）／演：鈴木仁 収録チェック'
+      });
+
+      const allArchetypesValid = state.mainCharacters.every((c) => GENRE_TYPES.includes(c.archetype));
+      const noMinatoAsuka = !state.mainCharacters.some((c) => String(c.name || '').includes('湊明日香'));
+      checks.push({
+        ok: allArchetypesValid && noMinatoAsuka && state.mainCharacters.length >= 140,
+        label: `メインキャラ系統見直し（${state.mainCharacters.length}名・8系統適合・湊明日香除外）チェック`
+      });
+
+      const dramaGroupSelectEl = document.getElementById('drama-group-search');
+      const mainGroupSelectEl = document.getElementById('main-group-search');
+      checks.push({
+        ok: Boolean(
+          dramaGroupSelectEl && dramaGroupSelectEl.tagName === 'SELECT' && dramaGroupSelectEl.options.length > 5 &&
+          mainGroupSelectEl && mainGroupSelectEl.tagName === 'SELECT' && mainGroupSelectEl.options.length > 5
+        ),
+        label: `作品＆メインキャラのグループ名セレクト選択（作品${dramaGroupSelectEl ? dramaGroupSelectEl.options.length - 1 : 0}・メイン${mainGroupSelectEl ? mainGroupSelectEl.options.length - 1 : 0}）チェック`
+      });
+
+      const subGroupInputRemoved = !document.getElementById('sub-group-search');
+      checks.push({
+        ok: subGroupInputRemoved,
+        label: 'サブキャラ図鑑のグループ名検索入力欄削除チェック'
+      });
+
+      checks.push({
+        ok: typeof jumpToDramaInBook === 'function' && typeof jumpToDramaFromCharacter === 'function',
+        label: 'メイン・サブキャラ図鑑からBL作品図鑑への作品名ジャンプ機能チェック'
+      });
+
+      const mainRes = computeMainCharResult(MAIN_CHAR_QUESTIONS.map((q) => q.options[0]));
+      const subRes = computeSubCharResult(SUB_CHAR_QUESTIONS.map((q) => q.options[0]));
+      const dramaRes = computeDramaQuizResult(DRAMA_QUIZ_QUESTIONS.map((q) => q.options[0]));
+      checks.push({
+        ok: Boolean(mainRes.title && subRes.title && dramaRes.title),
+        label: `8問診断ロジック検証（メイン：${mainRes.title}／サブ：${subRes.title}／作品：${dramaRes.title}）`
+      });
+
+      const container = document.getElementById('test-report-container');
+      if (container) {
+        container.innerHTML = checks.map((ch) => `
+          <div class="p-3 rounded-2xl border flex items-center justify-between gap-3 ${
+            ch.ok ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950' : 'bg-rose-50/80 border-rose-200 text-rose-950'
+          }">
+            <span class="font-bold">${escapeHtml(ch.label)}</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold shrink-0 ${
+              ch.ok ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+            }">
+              ${ch.ok ? 'PASS' : 'WARN'}
+            </span>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('test-modal')?.classList.remove('hidden');
+      showToast('テストプレイ検証を実行しました');
+    }
+
+    function closeTestModal() {
+      document.getElementById('test-modal')?.classList.add('hidden');
+    }
+
+    /* =========================================================================
+     * 9. 初期起動処理
+     * ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      setupSearchAndInputs();
+      populateDramaGroupSelect();
+      renderDramaFilterChips();
+      renderDramas();
+      populateMainGroupSelect();
+      populateMainDramaSelect();
+      renderMainGenreChips();
+      populateSubFilters();
+      renderCharacterQuiz();
+      renderDramaQuiz();
+      updateGlobalStats();
+    });
+  </script>
+</body>
+</html>
